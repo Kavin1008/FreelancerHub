@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { doc, getDoc } from "firebase/firestore";
 import register from "./register";
 
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
