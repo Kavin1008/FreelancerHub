@@ -7,31 +7,49 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import { TextField } from "@mui/material";
 
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "./firebase";
+
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function AlertDialogSlide() {
-  const [open, setOpen] = React.useState(false);
-  const [title,setTitle] = React.useState("");
+export default function AlertDialogSlide({ setOpen, open }) {
+  const [title, setTitle] = React.useState("");
   const [domain, setDomain] = React.useState("");
   const [description, setDescription] = React.useState("");
-  console.log(title);
-  
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const handleClose = () => {
     setOpen(false);
+    clearFields();
+  };
+
+  const clearFields = () => {
+    setTitle("");
+    setDomain("");
+    setDescription("");
+  };
+
+  const handlePost = async () => {
+    try {
+      // Add a new document with a generated ID
+      const id = localStorage.getItem('userID');
+      await addDoc(collection(db, "projects"), {
+        id,
+        title,
+        domain,
+        description,
+        postedDate: new Date().toISOString(), // Optionally include the posted date
+      });
+      console.log("Document successfully written!");
+      handleClose(); // Close dialog after posting
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
   };
 
   return (
     <React.Fragment>
-      <Button variant="outlined" onClick={handleClickOpen}>
-        Slide in alert dialog
-      </Button>
       <Dialog
         open={open}
         TransitionComponent={Transition}
@@ -44,31 +62,39 @@ export default function AlertDialogSlide() {
           <TextField
             label="Title"
             variant="outlined"
-            helperText="Example : Freelance job managment"
+            helperText="Example: Freelance job management"
             required
             sx={{ width: "100%" }}
+            value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
           <TextField
             label="Domain"
             variant="outlined"
-            helperText="Example : Full-Stack"
+            helperText="Example: Full-Stack"
             required
             sx={{ width: "100%" }}
+            value={domain}
             onChange={(e) => setDomain(e.target.value)}
           />
           <TextField
             label="Description"
             variant="outlined"
-            helperText="Example : An intermediate project where freelancers can find job postings, apply for projects, and manage ongoing work. Clients can post projects, hire freelancers, and track progress."
+            helperText="Example: An intermediate project where freelancers can find job postings, apply for projects, and manage ongoing work."
             required
             sx={{ width: "100%" }}
+            value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Post</Button>
+          <Button
+            onClick={handlePost}
+            disabled={!title || !domain || !description}
+          >
+            Post
+          </Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>

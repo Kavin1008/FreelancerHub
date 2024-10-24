@@ -72,19 +72,17 @@ export default function FreelancerJobs() {
 
   useEffect(() => {
     const fetchFreelancerDetails = async () => {
-      const userUID = localStorage.getItem('userUID'); // Get the freelancer's UID from localStorage
-        console.log(userUID);
-        
+      const userUID = localStorage.getItem('userUID'); 
       if (userUID) {
         const freelancerQuery = query(
           collection(db, 'Freelancer'),
-          where('id', '==', userUID) // Assuming 'freelancerId' is the field storing the UID in Firestore
+          where('id', '==', userUID) 
         );
 
         const querySnapshot = await getDocs(freelancerQuery);
 
         if (!querySnapshot.empty) {
-          const freelancerData = querySnapshot.docs[0].data(); // Get the first matching document
+          const freelancerData = querySnapshot.docs[0].data(); 
           setFreelancerDetails(freelancerData);
         } else {
           console.log('No freelancer details found for this UID');
@@ -96,6 +94,17 @@ export default function FreelancerJobs() {
 
     fetchFreelancerDetails();
   }, []);
+
+  const onSave = (updatedSkills) => {
+    // Update the state with the new skills
+    setFreelancerDetails((prevDetails) => ({
+        ...prevDetails, 
+        skills: updatedSkills, 
+      }));    
+    console.log("Updated skills saved:", updatedSkills);
+
+    setPopupOpen(false);
+  };
 
   const handleOpenPopup = (project) => {
     setSelectedProject({ ...project, newDescription: project.description });
@@ -227,6 +236,7 @@ export default function FreelancerJobs() {
         open={freelancerPopupOpen}
         onClose={handleCloseFreelancerPopup}
         freelancer={freelancerDetails}
+        onSave={onSave}
       />
     </Container>
   );
