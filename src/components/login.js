@@ -4,16 +4,15 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "./firebase";
 import { toast } from "react-toastify";
 import { doc, getDoc } from "firebase/firestore";
-import register from "./register";
 
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [utype, setUtype] = useState("");
   const navigate = useNavigate(); // Initialize useNavigate
 
   const handleSubmit = async (e) => {
-    console.log("Inside");
     e.preventDefault();
       try {
         const userCredential = await signInWithEmailAndPassword(
@@ -25,7 +24,7 @@ const Login = () => {
         console.log("Inside----------------------------------");
         if (user) {
           const collection =
-            register.utype === "Client" ? "Client" : "Freelancer";
+            utype === "Client" ? "Client" : "Freelancer";
           const userDoc = await getDoc(doc(db, collection, user.uid));
           console.log("----------------------------------------Inside");
           if (userDoc.exists()) {
@@ -53,14 +52,17 @@ const Login = () => {
   };
 
   return (
-    <div className="container d-flex align-items-center justify-content-center" style={{ height: '100vh' }}>
-      <form 
-        onSubmit={handleSubmit} 
+    <div
+      className="container d-flex align-items-center justify-content-center"
+      style={{ height: "100vh" }}
+    >
+      <form
+        onSubmit={handleSubmit}
         className="border rounded p-4 shadow"
-        style={{ width: '300px' }}
+        style={{ width: "300px" }}
       >
         <h3 className="text-center">Login</h3>
-  
+
         <div className="mb-3">
           <label>Email address</label>
           <input
@@ -72,7 +74,7 @@ const Login = () => {
             required
           />
         </div>
-  
+
         <div className="mb-3">
           <label>Password</label>
           <input
@@ -84,7 +86,21 @@ const Login = () => {
             required
           />
         </div>
-  
+
+        <div className="mb-3">
+          <label>User Type</label>
+          <select
+            className="form-control"
+            value={utype}
+            onChange={(e) => setUtype(e.target.value)}
+            required
+          >
+            <option value="">Select User Type</option>
+            <option value="Freelancer">Freelancer</option>
+            <option value="Client">Client</option>
+          </select>
+        </div>
+
         <div className="d-grid">
           <button type="submit" className="btn btn-primary">
             Submit
@@ -93,10 +109,9 @@ const Login = () => {
         <p className="forgot-password text-right">
           New user <a href="/register">Register Here</a>
         </p>
-      
       </form>
     </div>
-  )
+  );
 
 }
 export default Login;

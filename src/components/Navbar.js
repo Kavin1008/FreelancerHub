@@ -47,7 +47,7 @@ const Navbar = () => {
               key={item}
               color={activeItem === item ? "inherit" : "default"}
               onClick={() => {
-                if (item == "Post Projects") {
+                if (item === "Post Projects") {
                   handleClickOpen();
                 } else {
                   handleItemClick(item);
