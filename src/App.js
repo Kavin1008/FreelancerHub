@@ -15,6 +15,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "./components/firebase";
 import FreelancerJobs from "./components/Freelancer";
+import HierFreelancer from "./components/HireFreelancer";
+import AlertDialogSlide from "./components/PostProjects";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -40,6 +42,8 @@ function App() {
               <Route path="/register" element={<SignUp />} />
               {/* <Route path="/client-dashboard" element={<ClientDashboard />} /> */}
               <Route path="/freelancer-dashboard" element={<FreelancerJobs />} />
+              <Route path="/hirefreelancer" element={<HierFreelancer/>}/>
+              <Route path="/postprojects" element={<AlertDialogSlide/>}/>
             </Routes>
             <ToastContainer />
           </div>
