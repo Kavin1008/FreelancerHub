@@ -22,6 +22,7 @@ import {
 import ProjectPopup from "./ProjectPopup";
 import PersonIcon from "@mui/icons-material/Person2";
 import FreelancerPopup from "./FreelancerPopup";
+import Navbar from "./FreelancerNavbar";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: "100%",
@@ -72,23 +73,24 @@ export default function FreelancerJobs() {
 
   useEffect(() => {
     const fetchFreelancerDetails = async () => {
-      const userUID = localStorage.getItem('userUID'); 
+      const userUID = localStorage.getItem("userUID");
       if (userUID) {
         const freelancerQuery = query(
-          collection(db, 'Freelancer'),
-          where('id', '==', userUID) 
+          collection(db, "Freelancer"),
+          where("id", "==", userUID)
         );
 
         const querySnapshot = await getDocs(freelancerQuery);
 
         if (!querySnapshot.empty) {
-          const freelancerData = querySnapshot.docs[0].data(); 
+          const freelancerData = querySnapshot.docs[0].data();
           setFreelancerDetails(freelancerData);
+          console.log(freelancerData);
         } else {
-          console.log('No freelancer details found for this UID');
+          console.log("No freelancer details found for this UID");
         }
       } else {
-        console.error('No userUID found in localStorage');
+        console.error("No userUID found in localStorage");
       }
     };
 
@@ -98,9 +100,9 @@ export default function FreelancerJobs() {
   const onSave = (updatedSkills) => {
     // Update the state with the new skills
     setFreelancerDetails((prevDetails) => ({
-        ...prevDetails, 
-        skills: updatedSkills, 
-      }));    
+      ...prevDetails,
+      skills: updatedSkills,
+    }));
     console.log("Updated skills saved:", updatedSkills);
 
     setPopupOpen(false);
@@ -148,6 +150,11 @@ export default function FreelancerJobs() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Navbar
+        freelancerAvatar={
+          freelancerDetails.avatarURL || freelancerDetails.name?.charAt(0)
+        }
+      />
       <Stack direction="row" justifyContent="space-between" width={"100%"}>
         <Typography
           variant="h4"
@@ -160,7 +167,7 @@ export default function FreelancerJobs() {
           <PersonIcon />
         </Avatar>
       </Stack>
-      <Grid2 container spacing={3} >
+      <Grid2 container spacing={3}>
         {projects.map((project) => (
           <Grid2
             item
@@ -202,12 +209,6 @@ export default function FreelancerJobs() {
                 <InfoItem>
                   <Domain fontSize="small" />
                   <Chip label={project.domain} size="small" />
-                </InfoItem>
-                <InfoItem>
-                  <Person fontSize="small" />
-                  <Typography variant="body2" color="text.secondary">
-                    Client ID: {project.clientId}
-                  </Typography>
                 </InfoItem>
                 <InfoItem>
                   <CalendarToday fontSize="small" />

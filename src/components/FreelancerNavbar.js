@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
 import {
   AppBar,
   Toolbar,
@@ -15,10 +15,10 @@ import {
   useTheme,
 } from "@mui/material"
 import { styled } from "@mui/material/styles"
-import { Menu as MenuIcon, UserPlus, FileText, MessageSquare, BarChart2, CreditCard } from "lucide-react"
-import HireFreelancer from "./HireFreelancer"
+import { Menu as MenuIcon, DollarSign, ClipboardList } from "lucide-react"
+import TrackPaymentStatus from "./TrackPaymentStatus"
+import ManageTasks from "./ManageTasks"
 import PostProjects from "./PostProjects"
-import Proposals from "./Proposals"
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
@@ -34,23 +34,20 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }))
 
 const menuItems = [
-  { text: "Hire Freelancer", icon: <UserPlus size={20} /> },
-  { text: "Post Projects", icon: <FileText size={20} /> },
-  { text: "Proposals", icon: <MessageSquare size={20} /> },
-  { text: "Track Progress", icon: <BarChart2 size={20} /> },
-  { text: "Make Payment", icon: <CreditCard size={20} /> },
+  { text: "Track Payment Status", icon: <DollarSign size={20} /> },
+  { text: "Manage Tasks", icon: <ClipboardList size={20} /> },
 ]
 
 export default function Navbar() {
-  const [activeItem, setActiveItem] = useState(menuItems[0].text)
+  const [activeItem, setActiveItem] = useState("")
   const [open, setOpen] = useState(false)
   const [anchorElNav, setAnchorElNav] = useState(null)
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("md"))
 
-  const handleClickOpen = () => {
-    setOpen(true)
+  const handleNavMenuToggle = (event) => {
+    setAnchorElNav(anchorElNav ? null : event.currentTarget)
   }
 
   const handleItemClick = (item) => {
@@ -58,43 +55,27 @@ export default function Navbar() {
     setAnchorElNav(null)
   }
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget)
-  }
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null)
-  }
-
-  const renderActiveComponent = () => {
-    switch (activeItem) {
-      case "Hire Freelancer":
-        return <HireFreelancer />
-      case "Proposals":
-        return <Proposals />
-      case "Track Progress":
-        return <Typography>Track Progress Component</Typography>
-      case "Make Payment":
-        return <Typography>Make Payment Component</Typography>
-      default:
-        return null
+  const renderActiveComponent = useMemo(() => {
+    const componentsMap = {
+      "Track Payment Status": <TrackPaymentStatus />,
+      "Manage Tasks": <ManageTasks />,
     }
-  }
+    return componentsMap[activeItem] || null
+  }, [activeItem])
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       <StyledAppBar position="static">
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-
             {isMobile ? (
               <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
                 <IconButton
                   size="large"
-                  aria-label="account of current user"
+                  aria-label="open menu"
                   aria-controls="menu-appbar"
                   aria-haspopup="true"
-                  onClick={handleOpenNavMenu}
+                  onClick={handleNavMenuToggle}
                   color="inherit"
                 >
                   <MenuIcon />
@@ -112,17 +93,15 @@ export default function Navbar() {
                     horizontal: "left",
                   }}
                   open={Boolean(anchorElNav)}
-                  onClose={handleCloseNavMenu}
-                  sx={{
-                    display: { xs: "block", md: "none" },
-                  }}
+                  onClose={handleNavMenuToggle}
+                  sx={{ display: { xs: "block", md: "none" } }}
                 >
                   {menuItems.map((item) => (
                     <MenuItem
                       key={item.text}
                       onClick={() => {
                         if (item.text === "Post Projects") {
-                          handleClickOpen()
+                          setOpen(true)
                         } else {
                           handleItemClick(item.text)
                         }
@@ -140,7 +119,7 @@ export default function Navbar() {
                     key={item.text}
                     onClick={() => {
                       if (item.text === "Post Projects") {
-                        handleClickOpen()
+                        setOpen(true)
                       } else {
                         handleItemClick(item.text)
                       }
@@ -160,7 +139,7 @@ export default function Navbar() {
         </Container>
       </StyledAppBar>
       <Container maxWidth="xl" sx={{ mt: 4 }}>
-        {renderActiveComponent()}
+        {renderActiveComponent}
       </Container>
       <PostProjects setOpen={setOpen} open={open} />
     </Box>

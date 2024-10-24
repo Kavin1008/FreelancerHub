@@ -18,6 +18,7 @@ import FreelancerJobs from "./components/Freelancer";
 import HierFreelancer from "./components/HireFreelancer";
 import AlertDialogSlide from "./components/PostProjects";
 import Client from "./components/Client";
+import LandingPage from "./components/LandingPage";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -37,7 +38,7 @@ function App() {
             <Routes>
               <Route
                 path="/"
-                element={user ? <Navigate to="/login" /> : <Navigate to="/login" />}
+                element={<LandingPage />}
               />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<SignUp />} />
