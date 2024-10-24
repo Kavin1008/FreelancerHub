@@ -17,6 +17,7 @@ import { auth } from "./components/firebase";
 import FreelancerJobs from "./components/Freelancer";
 import HierFreelancer from "./components/HireFreelancer";
 import AlertDialogSlide from "./components/PostProjects";
+import Client from "./components/Client";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -40,7 +41,7 @@ function App() {
               />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<SignUp />} />
-              {/* <Route path="/client-dashboard" element={<ClientDashboard />} /> */}
+              <Route path="/client-dashboard" element={<Client />} />
               <Route path="/freelancer-dashboard" element={<FreelancerJobs />} />
               <Route path="/hirefreelancer" element={<HierFreelancer/>}/>
               <Route path="/postprojects" element={<AlertDialogSlide/>}/>
