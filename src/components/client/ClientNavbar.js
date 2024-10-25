@@ -20,6 +20,7 @@ import HireFreelancer from "../client/HireFreelancer"
 import PostProjects from "../client/PostProjects"
 import Proposals from "../client/Proposals"
 import TrackProgress from "./TrackProgress"
+import { useNavigate } from "react-router-dom"; 
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
@@ -40,12 +41,14 @@ const menuItems = [
   { text: "Proposals", icon: <MessageSquare size={20} /> },
   { text: "Track Progress", icon: <BarChart2 size={20} /> },
   { text: "Make Payment", icon: <CreditCard size={20} /> },
+  { text: "Logout"}
 ]
 
 export default function Navbar() {
   const [activeItem, setActiveItem] = useState(menuItems[0].text)
   const [open, setOpen] = useState(false)
   const [anchorElNav, setAnchorElNav] = useState(null)
+  const navigate = useNavigate(); 
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("md"))
@@ -55,9 +58,15 @@ export default function Navbar() {
   }
 
   const handleItemClick = (item) => {
-    setActiveItem(item)
-    setAnchorElNav(null)
-  }
+    if (item === "Logout") {
+      // Handle logout and navigate to login
+      // Perform any logout actions if needed (e.g., clear authentication state)
+      navigate("/login"); // Redirect to login page
+    } else {
+      setActiveItem(item);
+    }
+    setAnchorElNav(null);
+  };
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget)
