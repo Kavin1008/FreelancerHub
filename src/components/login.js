@@ -24,7 +24,7 @@ const Login = () => {
         console.log("Inside----------------------------------");
         if (user) {
           const collection =
-            utype === "Client" ? "Client" : "Freelancer";
+            utype === "Client" ? "Client" : utype === "Freelancer" ? "Freelancer" : "Admin";
           const userDoc = await getDoc(doc(db, collection, user.uid));
           console.log("----------------------------------------Inside");
           if (userDoc.exists()) {
@@ -42,7 +42,7 @@ const Login = () => {
             navigate(
               usertype === "Client"
                 ? "/client-dashboard"
-                : "/freelancer-dashboard"
+                : usertype === "Freelancer" ? "/freelancer-dashboard" : "/admin-dashboard"
             );
           }
         }
@@ -96,6 +96,7 @@ const Login = () => {
             required
           >
             <option value="">Select User Type</option>
+            <option value="Admin">Admin</option>
             <option value="Freelancer">Freelancer</option>
             <option value="Client">Client</option>
           </select>

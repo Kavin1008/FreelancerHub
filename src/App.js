@@ -5,7 +5,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom";
 
 import Login from "./components/login";
@@ -19,6 +18,7 @@ import HierFreelancer from "./components/HireFreelancer";
 import AlertDialogSlide from "./components/PostProjects";
 import Client from "./components/Client";
 import LandingPage from "./components/LandingPage";
+import Admin from "./components/Admin";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -36,16 +36,17 @@ function App() {
         <div className="auth-wrapper">
           <div className="auth-inner">
             <Routes>
-              <Route
-                path="/"
-                element={<LandingPage />}
-              />
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<SignUp />} />
+              <Route path="/admin-dashboard" element={<Admin />} />
               <Route path="/client-dashboard" element={<Client />} />
-              <Route path="/freelancer-dashboard" element={<FreelancerJobs />} />
-              <Route path="/hirefreelancer" element={<HierFreelancer/>}/>
-              <Route path="/postprojects" element={<AlertDialogSlide/>}/>
+              <Route
+                path="/freelancer-dashboard"
+                element={<FreelancerJobs />}
+              />
+              <Route path="/hirefreelancer" element={<HierFreelancer />} />
+              <Route path="/postprojects" element={<AlertDialogSlide />} />
             </Routes>
             <ToastContainer />
           </div>

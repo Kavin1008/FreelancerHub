@@ -36,7 +36,7 @@ function Register() {
       const user = userCredential.user;
 
       // Choose the collection based on user type
-      const collection = utype === "Client" ? "Client" : "Freelancer";
+      const collection = utype === "Client" ? "Client" : utype === "Freelancer" ? "Freelancer" : "Admin";
 
       await setDoc(doc(db, collection, user.uid), {
         id: id(),
@@ -54,7 +54,7 @@ function Register() {
 
       // Redirect based on user type
       navigate(
-        utype === "Freelancer" ? "/freelancer-dashboard" : "/client-dashboard"
+        utype === "Freelancer" ? "/freelancer-dashboard" : utype === "client" ? "/client-dashboard" : "/admin-dashboard"
       );
     } catch (error) {
       console.log(error.message);
@@ -67,14 +67,17 @@ function Register() {
   };
 
   return (
-    <div className="container d-flex align-items-center justify-content-center" style={{ height: '100vh' }}>
-      <form 
-        onSubmit={handleRegister} 
+    <div
+      className="container d-flex align-items-center justify-content-center"
+      style={{ height: "100vh" }}
+    >
+      <form
+        onSubmit={handleRegister}
         className="border rounded p-4 shadow"
-        style={{ width: '300px' }}
+        style={{ width: "300px" }}
       >
         <h3>Sign Up</h3>
-  
+
         <div className="mb-3">
           <label>First name</label>
           <input
@@ -85,7 +88,7 @@ function Register() {
             required
           />
         </div>
-  
+
         <div className="mb-3">
           <label>Last name</label>
           <input
@@ -95,7 +98,7 @@ function Register() {
             onChange={(e) => setLname(e.target.value)}
           />
         </div>
-  
+
         <div className="mb-3">
           <label>User Type</label>
           <select
@@ -105,11 +108,12 @@ function Register() {
             required
           >
             <option value="">Select User Type</option>
+            <option value="Admin">Admin</option>
             <option value="Freelancer">Freelancer</option>
             <option value="Client">Client</option>
           </select>
         </div>
-  
+
         <div className="mb-3">
           <label>Email address</label>
           <input
@@ -120,7 +124,7 @@ function Register() {
             required
           />
         </div>
-  
+
         <div className="mb-3">
           <label>Password</label>
           <input
@@ -131,13 +135,13 @@ function Register() {
             required
           />
         </div>
-  
+
         <div className="d-grid">
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </div>
-        
+
         <p className="forgot-password text-right">
           Already registered <a href="/login">Login</a>
         </p>
