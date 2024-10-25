@@ -149,7 +149,7 @@ export default function FreelancerJobs() {
     if (selectedProject) {
       console.log(freelancerDetails);
       try {
-        await addDoc(collection(db, "proposals"), {
+        await addDoc(collection(db, "projects"), {
           clientId: selectedProject.clientId, // Client ID from the selected project
           title: selectedProject.title,
           freelancerId: freelancerDetails.id, // Freelancer's ID

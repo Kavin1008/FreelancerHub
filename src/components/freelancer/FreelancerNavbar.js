@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Menu as MenuIcon, DollarSign, ClipboardList } from "lucide-react";
-import TrackPaymentStatus from "../client/TrackPaymentStatus";
+import TrackPaymentStatus from "./TrackPaymentStatus";
 import ManageTasks from "./ManageTasks";
 import PostProjects from "../client/PostProjects";
 

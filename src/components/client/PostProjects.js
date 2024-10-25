@@ -8,6 +8,7 @@ import Slide from "@mui/material/Slide";
 import { TextField } from "@mui/material";
 import { collection, addDoc, query, getDocs, where } from "firebase/firestore"; // Import getDoc for fetching client data
 import { db } from "../firebase";
+import {v4 as id} from "uuid";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -70,6 +71,7 @@ export default function AlertDialogSlide({ setOpen, open }) {
       if (userId && clientData) {
         // Add a new document with the client details and project information
         await addDoc(collection(db, "projects"), {
+          id: id(),
           clientId: userId,
           clientName: clientData.firstName, // Assuming clientData has a 'name' field
           title,

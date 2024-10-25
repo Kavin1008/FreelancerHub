@@ -19,6 +19,7 @@ import { Menu as MenuIcon, UserPlus, FileText, MessageSquare, BarChart2, CreditC
 import HireFreelancer from "../client/HireFreelancer"
 import PostProjects from "../client/PostProjects"
 import Proposals from "../client/Proposals"
+import TrackProgress from "./TrackProgress"
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
@@ -73,7 +74,7 @@ export default function Navbar() {
       case "Proposals":
         return <Proposals />
       case "Track Progress":
-        return <Typography>Track Progress Component</Typography>
+        return <TrackProgress />
       case "Make Payment":
         return <Typography>Make Payment Component</Typography>
       default:
