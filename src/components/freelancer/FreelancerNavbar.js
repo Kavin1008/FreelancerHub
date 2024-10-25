@@ -17,6 +17,7 @@ import { Menu as MenuIcon, DollarSign, ClipboardList } from "lucide-react";
 import TrackPaymentStatus from "./TrackPaymentStatus";
 import ManageTasks from "./ManageTasks";
 import ViewProjects from "./ViewProjects";
+import { useNavigate } from "react-router-dom"; 
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
@@ -35,6 +36,7 @@ const menuItems = [
   { text: "View Projects", icon: <DollarSign size={20} /> },
   { text: "Manage Tasks", icon: <ClipboardList size={20} /> },
   { text: "Payment Status", icon: <ClipboardList size={20} /> },
+  { text: "LogOut"}
 ];
 
 const defaultActiveItem = menuItems[0].text;
@@ -42,6 +44,7 @@ const defaultActiveItem = menuItems[0].text;
 export default function Navbar() {
   const [activeItem, setActiveItem] = useState(defaultActiveItem);
   const [anchorElNav, setAnchorElNav] = useState(null);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -51,9 +54,16 @@ export default function Navbar() {
   };
 
   const handleItemClick = (item) => {
-    setActiveItem(item);
+    if (item === "LogOut") {
+      // Handle logout and navigate to login
+      // Perform any logout actions if needed (e.g., clear authentication state)
+      navigate("/login"); // Redirect to login page
+    } else {
+      setActiveItem(item);
+    }
     setAnchorElNav(null);
   };
+
 
   const renderActiveComponent = useMemo(() => {
     const componentsMap = {

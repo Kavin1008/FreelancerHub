@@ -18,10 +18,10 @@ import {
   DialogTitle,
   IconButton,
   Divider,
-  List as MuiList,
-  ListItem as MuiListItem,
+  Paper,
+  Container,
+  Alert,
   ListItemIcon,
-  ListItemText as MuiListItemText,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -29,6 +29,8 @@ import {
   Email as EmailIcon,
   Badge as BadgeIcon,
   Phone as PhoneIcon,
+  Delete as DeleteIcon,
+  Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 
 const AdminClient = () => {
@@ -59,44 +61,39 @@ const AdminClient = () => {
   };
 
   const handleDelete = async (id) => {
-    console.log(id);
-    
-  const confirmed = window.confirm("Are you sure you want to delete this client?");
-  if (!confirmed) return;
+    const confirmed = window.confirm("Are you sure you want to delete this client?");
+    if (!confirmed) return;
 
-  setLoading(true); // Assuming you have a loading state
+    setLoading(true);
 
-  try {
-    const clientCol = collection(db, "Client");
-    const q = query(clientCol, where("id", "==", id));
-    console.log(`Attempting to delete client with ID: ${id}`);
+    try {
+      const clientCol = collection(db, "Client");
+      const q = query(clientCol, where("id", "==", id));
+      console.log(`Attempting to delete client with ID: ${id}`);
 
-    // Fetch the document(s) matching the query
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      // Assuming there's only one document with the given id
-      querySnapshot.forEach(async (docSnapshot) => {
-        const clientDocRef = doc(db, "Client", docSnapshot.id); // Get document reference
-        await deleteDoc(clientDocRef); // Delete the document
-        console.log(`Successfully deleted client with ID: ${id}`);
-        setSnackbarMessage("Client deleted successfully");
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        querySnapshot.forEach(async (docSnapshot) => {
+          const clientDocRef = doc(db, "Client", docSnapshot.id);
+          await deleteDoc(clientDocRef);
+          console.log(`Successfully deleted client with ID: ${id}`);
+          setSnackbarMessage("Client deleted successfully");
+          setSnackbarOpen(true);
+          fetchClients();
+        });
+      } else {
+        console.error(`No client found with ID: ${id}`);
+        setSnackbarMessage("Client not found");
         setSnackbarOpen(true);
-        fetchClients(); // Refresh the client list
-      });
-    } else {
-      console.error(`No client found with ID: ${id}`);
-      setSnackbarMessage("Client not found");
+      }
+    } catch (err) {
+      console.error("Error deleting client:", err);
+      setSnackbarMessage("Failed to delete client. Please try again.");
       setSnackbarOpen(true);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Error deleting client:", err);
-    setSnackbarMessage("Failed to delete client. Please try again.");
-    setSnackbarOpen(true);
-  } finally {
-    setLoading(false); // Reset loading state
-  }
-};
-
+  };
 
   const handleView = (client) => {
     setSelectedClient(client);
@@ -120,52 +117,73 @@ const AdminClient = () => {
     return clients.map((client) => (
       <ListItem
         key={client.id}
-        sx={{ borderBottom: "1px solid #ccc", padding: "16px" }}
+        sx={{
+          borderBottom: "1px solid #e0e0e0",
+          "&:hover": {
+            backgroundColor: "rgba(0, 0, 0, 0.04)",
+          },
+        }}
       >
+        <ListItemIcon>
+          <PersonIcon color="primary" />
+        </ListItemIcon>
         <ListItemText
-          primary={`${client.firstName} ${client.lastName}`}
-          secondary={`${client.email}`}
+          primary={
+            <Typography variant="subtitle1">{`${client.firstName} ${client.lastName}`}</Typography>
+          }
+          secondary={
+            <Typography variant="body2" color="text.secondary">
+              {client.email}
+            </Typography>
+          }
         />
         <Box>
-          <Button
-            variant="contained"
+          <IconButton
             color="primary"
             onClick={() => handleView(client)}
-            sx={{ marginRight: 1 }}
+            sx={{ mr: 1 }}
           >
-            View
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
+            <VisibilityIcon />
+          </IconButton>
+          <IconButton
+            color="error"
             onClick={() => handleDelete(client.id)}
           >
-            Delete
-          </Button>
+            <DeleteIcon />
+          </IconButton>
         </Box>
       </ListItem>
     ));
   }, [clients]);
 
   return (
-    <Box padding={3}>
-      <Typography variant="h4" marginBottom={2}>
-        Client List
-      </Typography>
-      {loading ? (
-        <CircularProgress />
-      ) : error ? (
-        <Typography color="error">{error}</Typography>
-      ) : (
-        <List>{clientList}</List>
-      )}
+    <Container maxWidth="md">
+      <Box sx={{ my: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Client List
+        </Typography>
+        <Paper elevation={3}>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : error ? (
+            <Alert severity="error">{error}</Alert>
+          ) : (
+            <List>{clientList}</List>
+          )}
+        </Paper>
+      </Box>
 
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        message={snackbarMessage}
-      />
+      >
+        <Alert onClose={handleCloseSnackbar} severity="info" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
 
       <Dialog
         open={dialogOpen}
@@ -197,38 +215,38 @@ const AdminClient = () => {
                 gutterBottom
                 sx={{ display: "flex", alignItems: "center" }}
               >
-                <PersonIcon sx={{ mr: 1 }} />
+                <PersonIcon sx={{ mr: 1 }} color="primary" />
                 {`${selectedClient.firstName} ${selectedClient.lastName}`}
               </Typography>
-              <MuiList>
-                <MuiListItem>
+              <List>
+                <ListItem>
                   <ListItemIcon>
-                    <EmailIcon />
+                    <EmailIcon color="primary" />
                   </ListItemIcon>
-                  <MuiListItemText
+                  <ListItemText
                     primary="Email"
                     secondary={selectedClient.email}
                   />
-                </MuiListItem>
-                <MuiListItem>
+                </ListItem>
+                <ListItem>
                   <ListItemIcon>
-                    <BadgeIcon />
+                    <BadgeIcon color="primary" />
                   </ListItemIcon>
-                  <MuiListItemText
+                  <ListItemText
                     primary="User Type"
                     secondary={selectedClient.usertype}
                   />
-                </MuiListItem>
-                <MuiListItem>
+                </ListItem>
+                <ListItem>
                   <ListItemIcon>
-                    <PhoneIcon />
+                    <PhoneIcon color="primary" />
                   </ListItemIcon>
-                  <MuiListItemText
+                  <ListItemText
                     primary="Phone"
                     secondary={selectedClient.phone || "N/A"}
                   />
-                </MuiListItem>
-              </MuiList>
+                </ListItem>
+              </List>
             </Box>
           )}
         </DialogContent>
@@ -244,7 +262,7 @@ const AdminClient = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Container>
   );
 };
 
