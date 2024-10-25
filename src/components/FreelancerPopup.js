@@ -9,7 +9,6 @@ const availableSkills = ['JavaScript', 'React', 'Node.js', 'Python', 'Firebase',
 export default function FreelancerPopup({ open, onClose, freelancer, onSave }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedSkills, setSelectedSkills] = useState([]); // Initialize as an empty array if skills are missing
-    console.log(freelancer.skills);
     useEffect(() => {
         if (freelancer && freelancer.skills) {
           setSelectedSkills(freelancer.skills.split(', ')); // Set selectedSkills from freelancer's skills

@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { collection, query, where, getDocs } from 'firebase/firestore'
+import { collection, query, where, getDocs, addDoc } from 'firebase/firestore'
 import { db } from './firebase' // Ensure your Firebase config is correctly set up
 import { getAuth } from 'firebase/auth' // To get the currently logged-in user
 import {
@@ -10,7 +10,7 @@ import {
   Box,
   Card,
   CardContent,
-  Grid,
+  Grid2,
   Chip,
   Avatar,
   Button,
@@ -58,6 +58,46 @@ const Proposals = () => {
     fetchProposals()
   }, [])
 
+  const handleAccept = async (proposal) => {
+    try {
+      const auth = getAuth()
+      const user = auth.currentUser
+
+      if (!user) {
+        setError("User is not logged in.")
+        return
+      }
+
+      const clientId = localStorage.getItem("userUID")
+
+      // Prepare data for accepted proposal
+      const acceptedProposal = {
+        clientId: clientId,
+        proposalId: proposal.id,
+        freelancerId: proposal.freelancerId,
+        freelancerName: proposal.freelancerName,
+        title: proposal.title,
+        acceptedDate: new Date().toISOString(),
+        status: 'Accepted',
+      }
+
+      // Save the accepted proposal to Firestore under the 'progress' collection
+      await addDoc(collection(db, 'progress'), acceptedProposal)
+
+      alert('Proposal accepted successfully!')
+
+      // Optionally, you can update the local state to reflect the accepted status
+      setProposals(prevProposals => 
+        prevProposals.map(p => 
+          p.id === proposal.id ? { ...p, status: 'Accepted' } : p
+        )
+      )
+    } catch (error) {
+      console.error("Error accepting proposal: ", error)
+      setError("Failed to accept proposal.")
+    }
+  }
+
   if (loading) return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
       <CircularProgress />
@@ -76,9 +116,9 @@ const Proposals = () => {
         Your Proposals
       </Typography>
       {proposals.length > 0 ? (
-        <Grid container spacing={3}>
+        <Grid2 container spacing={3}>
           {proposals.map((proposal) => (
-            <Grid item xs={12} md={6} key={proposal.id}>
+            <Grid2 item xs={12} md={6} key={proposal.id}>
               <Card 
                 sx={{ 
                   height: '100%',
@@ -106,14 +146,14 @@ const Proposals = () => {
                   <Box display="flex" alignItems="center" mb={1}>
                     <User size={20} style={{ marginRight: theme.spacing(1) }} />
                     <Typography variant="body2">
-                      Freelancer ID: {proposal.freelancerId}
+                      Freelancer Name: {proposal.freelancerName}
                     </Typography>
                   </Box>
                   {proposal.submissionDate && (
                     <Box display="flex" alignItems="center" mb={1}>
                       <Calendar size={20} style={{ marginRight: theme.spacing(1) }} />
                       <Typography variant="body2">
-                        Submitted on: {new Date(proposal.submissionDate).toLocaleDateString()}
+                        Submitted on: {new Date(proposal.submissionDate).toISOString}
                       </Typography>
                     </Box>
                   )}
@@ -134,14 +174,19 @@ const Proposals = () => {
                   )}
                 </CardContent>
                 <Box p={2} pt={0}>
-                  <Button variant="outlined" fullWidth>
-                    Accept
+                  <Button 
+                    variant="outlined" 
+                    fullWidth
+                    onClick={() => handleAccept(proposal)}
+                    disabled={proposal.status === 'Accepted'}
+                  >
+                    {proposal.status === 'Accepted' ? 'Accepted' : 'Accept'}
                   </Button>
                 </Box>
               </Card>
-            </Grid>
+            </Grid2>
           ))}
-        </Grid>
+        </Grid2>
       ) : (
         <Box 
           display="flex" 

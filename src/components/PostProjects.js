@@ -75,6 +75,7 @@ React.useEffect(() => {
           clientName: clientData.firstName, // Assuming clientData has a 'name' field
           title,
           domain,
+          status:"Posted",
           description,
           postedDate: new Date().toISOString(), // Optionally include the posted date
         });

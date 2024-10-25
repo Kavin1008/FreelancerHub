@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, addDoc, query, where } from "firebase/firestore";
+import { collection, getDocs, addDoc, query, where, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import {
   Container,
@@ -59,43 +59,56 @@ export default function FreelancerJobs() {
   const [freelancerPopupOpen, setFreelancerPopupOpen] = useState(false);
   const [freelancerDetails, setFreelancerDetails] = useState({});
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      const querySnapshot = await getDocs(collection(db, "projects"));
+  
+useEffect(() => {
+  const fetchProjects = async () => {
+    try {
+      const q = query(collection(db, "projects"), where("status", "==", "Posted"));
+      
+      const querySnapshot = await getDocs(q);
       const projectsList = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
+      
       setProjects(projectsList);
-    };
-    fetchProjects();
-  }, []);
+    } catch (error) {
+      console.error("Error fetching projects: ", error);
+    }
+  };
+
+  fetchProjects();
+}, []);
 
   useEffect(() => {
     const fetchFreelancerDetails = async () => {
       const userUID = localStorage.getItem("userUID");
       if (userUID) {
-        const freelancerQuery = query(
-          collection(db, "Freelancer"),
-          where("id", "==", userUID)
-        );
-
-        const querySnapshot = await getDocs(freelancerQuery);
-
-        if (!querySnapshot.empty) {
-          const freelancerData = querySnapshot.docs[0].data();
-          setFreelancerDetails(freelancerData);
-          console.log(freelancerData);
-        } else {
-          console.log("No freelancer details found for this UID");
+        try {
+          const freelancerQuery = query(
+            collection(db, "Freelancer"),
+            where("id", "==", userUID), // Fetch only projects with status "Posted"
+          );
+  
+          const querySnapshot = await getDocs(freelancerQuery);
+  
+          if (!querySnapshot.empty) {
+            const freelancerData = querySnapshot.docs[0].data();
+            setFreelancerDetails(freelancerData);
+          } else {
+            console.log("No freelancer details found with status 'Posted' for this UID");
+          }
+        } catch (error) {
+          console.error("Error fetching freelancer details:", error);
         }
       } else {
         console.error("No userUID found in localStorage");
       }
     };
-
+  
     fetchFreelancerDetails();
   }, []);
+  
 
   const onSave = (updatedSkills) => {
     // Update the state with the new skills
@@ -124,21 +137,41 @@ export default function FreelancerJobs() {
 
   const handleSave = async () => {
     if (selectedProject) {
+      console.log(freelancerDetails);
+      const userUID = localStorage.getItem("userUID");
       try {
-        // Create a new document under the "proposals" collection
         await addDoc(collection(db, "proposals"), {
           clientId: selectedProject.clientId, // Client ID from the selected project
-          freelancerId: "yourFreelancerId", // Replace with the logged-in freelancer's ID
-          description: selectedProject.newDescription, // Description entered in the popup
+          title: selectedProject.title,
+          freelancerId: freelancerDetails.id, // Freelancer's ID
+          freelancerName: freelancerDetails.firstName, // Freelancer's name
+          description: desc, // Description entered in the popup
+          submissionDate: new Date(), // Current date and time
+          status: "Requested"
         });
+        
         console.log("Proposal submitted successfully");
+  
+        // Update the status field of the selected project to "Requested"
+        
+        const projectRef = doc(db, "projects", selectedProject.id
+      ); // Get the reference to the project document
+      console.log(projectRef);
+      
+        await updateDoc(projectRef, {
+          status: "Requested"
+        });
+  
+        console.log("Project status updated to 'Requested'");
+        
       } catch (error) {
-        console.error("Error submitting proposal:", error);
+        console.error("Error submitting proposal or updating project:", error);
       }
     }
-
+  
     handleClosePopup(); // Close the popup after saving
   };
+  
 
   const handleOpenFreelancerPopup = () => {
     setFreelancerPopupOpen(true);

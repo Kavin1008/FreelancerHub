@@ -21,6 +21,8 @@ const Login = () => {
           password
         );
         const user = userCredential.user;
+        console.log(user);
+        
         console.log("Inside----------------------------------");
         if (user) {
           const collection =
