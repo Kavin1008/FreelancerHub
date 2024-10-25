@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { db } from "../firebase";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc, query, where } from "firebase/firestore";
 import {
   Button,
   List,
@@ -58,17 +58,34 @@ const AdminFreelancer = () => {
 
   const handleDelete = async (id) => {
     try {
-      const freelancerDoc = doc(db, "Freelancer", id);
-      await deleteDoc(freelancerDoc);
-      setSnackbarMessage("Freelancer deleted successfully");
-      setSnackbarOpen(true);
-      fetchFreelancers(); // Refresh the list
+      const freelancerCol = collection(db, "Freelancer");
+      const q = query(freelancerCol, where("id", "==", id)); // Adjust this if needed
+
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        // Assuming there's only one document with the given id
+        querySnapshot.forEach(async (docSnapshot) => {
+          const freelancerDoc = doc(db, "Freelancer", docSnapshot.id); // Get document reference
+          await deleteDoc(freelancerDoc); // Delete the document
+          console.log(`Successfully deleted freelancer with ID: ${id}`);
+          setSnackbarMessage("Freelancer deleted successfully");
+          setSnackbarOpen(true);
+          fetchFreelancers(); // Refresh the list
+        });
+      } else {
+        console.error(`No freelancer found with ID: ${id}`);
+        setSnackbarMessage("Freelancer not found");
+        setSnackbarOpen(true);
+      }
     } catch (err) {
       console.error("Error deleting freelancer:", err);
       setSnackbarMessage("Failed to delete freelancer");
       setSnackbarOpen(true);
     }
   };
+
+  
 
   const handleView = (freelancer) => {
     setSelectedFreelancer(freelancer);

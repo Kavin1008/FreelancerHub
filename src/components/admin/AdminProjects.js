@@ -1,8 +1,6 @@
-"use client";
-
 import React, { useEffect, useState, useMemo } from "react";
 import { db } from "../firebase"; // Ensure this path is correct
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc, query, where } from "firebase/firestore";
 import {
   Button,
   List,
@@ -19,36 +17,7 @@ import {
   Divider,
   IconButton,
 } from "@mui/material";
-import { styled } from "@mui/system";
-import CloseIcon from "@mui/icons-material/Close";
-
-// Styled components for the dialog
-const StyledDialog = styled(Dialog)(({ theme }) => ({
-  "& .MuiDialog-paper": {
-    borderRadius: "12px",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
-  },
-}));
-
-const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  padding: theme.spacing(2),
-  position: "relative",
-}));
-
-const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
-  padding: theme.spacing(3),
-}));
-
-const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: `1px solid ${theme.palette.divider}`,
-}));
-
-const DetailItem = styled(Typography)(({ theme }) => ({
-  marginBottom: theme.spacing(1),
-}));
+import { Close as CloseIcon } from "@mui/icons-material";
 
 const AdminProjects = () => {
   const [projects, setProjects] = useState([]);
@@ -86,17 +55,32 @@ const AdminProjects = () => {
 
   const handleDelete = async (id) => {
     try {
-      const projectDoc = doc(db, "Projects", id);
-      await deleteDoc(projectDoc);
-      setSnackbarMessage("Project deleted successfully");
-      setSnackbarOpen(true);
-      fetchProjects(); // Refresh the list
+      const projectsCollection = collection(db, "projects");
+      const q = query(projectsCollection, where("id", "==", id)); // Assuming 'id' is a field in your documents
+
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        querySnapshot.forEach(async (docSnapshot) => {
+          const projectDoc = doc(db, "projects", docSnapshot.id); // Get document reference
+          await deleteDoc(projectDoc); // Delete the document
+          console.log(`Successfully deleted project with ID: ${id}`);
+          setSnackbarMessage("Project deleted successfully");
+          setSnackbarOpen(true);
+          fetchProjects(); // Refresh the list
+        });
+      } else {
+        console.error(`No project found with ID: ${id}`);
+        setSnackbarMessage("Project not found");
+        setSnackbarOpen(true);
+      }
     } catch (err) {
       console.error("Error deleting project:", err);
       setSnackbarMessage("Failed to delete project");
       setSnackbarOpen(true);
     }
   };
+
 
   const handleView = (project) => {
     setSelectedProject(project);
@@ -167,8 +151,13 @@ const AdminProjects = () => {
         message={snackbarMessage}
       />
 
-      <StyledDialog open={dialogOpen} onClose={handleCloseDialog}>
-        <StyledDialogTitle>
+      <Dialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ m: 0, p: 2 }}>
           Project Details
           <IconButton
             aria-label="close"
@@ -182,26 +171,28 @@ const AdminProjects = () => {
           >
             <CloseIcon />
           </IconButton>
-        </StyledDialogTitle>
+        </DialogTitle>
         <Divider />
-        <StyledDialogContent>
+        <DialogContent>
           {selectedProject && (
             <Box>
-              <DetailItem variant="h6">{selectedProject.title}</DetailItem>
-              <DetailItem>
+              <Typography variant="h5" gutterBottom>
+                {selectedProject.title}
+              </Typography>
+              <Typography>
                 <strong>Client Name:</strong> {selectedProject.clientName}
-              </DetailItem>
-              <DetailItem>
+              </Typography>
+              <Typography>
                 <strong>Description:</strong> {selectedProject.description}
-              </DetailItem>
-              <DetailItem>
+              </Typography>
+              <Typography>
                 <strong>Domain:</strong> {selectedProject.domain}
-              </DetailItem>
+              </Typography>
             </Box>
           )}
-        </StyledDialogContent>
+        </DialogContent>
         <Divider />
-        <StyledDialogActions>
+        <DialogActions>
           <Button
             onClick={handleCloseDialog}
             color="primary"
@@ -209,8 +200,8 @@ const AdminProjects = () => {
           >
             Close
           </Button>
-        </StyledDialogActions>
-      </StyledDialog>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

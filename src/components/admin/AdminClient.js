@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { db } from "../firebase";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc, query, where } from "firebase/firestore";
 import {
   Button,
   List,
@@ -59,20 +59,44 @@ const AdminClient = () => {
   };
 
   const handleDelete = async (id) => {
-    try {
-      console.log(`Attempting to delete client with ID: ${id}`);
-      const clientDoc = doc(db, "Client", id);
-      await deleteDoc(clientDoc);
-      console.log(`Successfully deleted client with ID: ${id}`);
-      setSnackbarMessage("Client deleted successfully");
-      setSnackbarOpen(true);
-      fetchClients(); // Refresh the client list
-    } catch (err) {
-      console.error("Error deleting client:", err);
-      setSnackbarMessage("Failed to delete client");
+    console.log(id);
+    
+  const confirmed = window.confirm("Are you sure you want to delete this client?");
+  if (!confirmed) return;
+
+  setLoading(true); // Assuming you have a loading state
+
+  try {
+    const clientCol = collection(db, "Client");
+    const q = query(clientCol, where("id", "==", id));
+    console.log(`Attempting to delete client with ID: ${id}`);
+
+    // Fetch the document(s) matching the query
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      // Assuming there's only one document with the given id
+      querySnapshot.forEach(async (docSnapshot) => {
+        const clientDocRef = doc(db, "Client", docSnapshot.id); // Get document reference
+        await deleteDoc(clientDocRef); // Delete the document
+        console.log(`Successfully deleted client with ID: ${id}`);
+        setSnackbarMessage("Client deleted successfully");
+        setSnackbarOpen(true);
+        fetchClients(); // Refresh the client list
+      });
+    } else {
+      console.error(`No client found with ID: ${id}`);
+      setSnackbarMessage("Client not found");
       setSnackbarOpen(true);
     }
-  };
+  } catch (err) {
+    console.error("Error deleting client:", err);
+    setSnackbarMessage("Failed to delete client. Please try again.");
+    setSnackbarOpen(true);
+  } finally {
+    setLoading(false); // Reset loading state
+  }
+};
+
 
   const handleView = (client) => {
     setSelectedClient(client);

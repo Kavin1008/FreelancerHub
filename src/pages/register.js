@@ -58,13 +58,7 @@ function Register() {
       });
 
       // Redirect based on user type
-      navigate(
-        utype === "Freelancer"
-          ? "/freelancer-dashboard"
-          : utype === "client"
-          ? "/client-dashboard"
-          : "/admin-dashboard"
-      );
+      navigate("/login");
     } catch (error) {
       console.log(error.message);
       toast.error(error.message, {
