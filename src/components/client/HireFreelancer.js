@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 import {
   Grid,
   Card,
@@ -12,46 +12,56 @@ import {
   CircularProgress,
   Container,
   useTheme,
-} from "@mui/material"
-import { collection, getDocs } from "firebase/firestore"
-import { db } from "./firebase"
-import { User, Mail, Star } from "lucide-react"
+} from "@mui/material";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase";
+import { Mail, Star } from "lucide-react";
 
 const HireFreelancer = () => {
-  const [data, setData] = useState([])
-  const [loading, setLoading] = useState(true)
-  const theme = useTheme()
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const theme = useTheme();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "Freelancer"))
+        const querySnapshot = await getDocs(collection(db, "Freelancer"));
         const items = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        }))
-        setData(items)
+        }));
+        setData(items);
       } catch (error) {
-        console.error("Error fetching data: ", error)
+        console.error("Error fetching data: ", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
         <CircularProgress />
       </Box>
-    )
+    );
   }
 
   return (
     <Container maxWidth="lg">
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4, fontWeight: "bold" }}>
+      <Typography
+        variant="h4"
+        component="h1"
+        gutterBottom
+        sx={{ mb: 4, fontWeight: "bold" }}
+      >
         Available Freelancers
       </Typography>
       <Grid container spacing={3}>
@@ -87,7 +97,11 @@ const HireFreelancer = () => {
                     <Typography variant="h6" component="div">
                       {item.firstName} {item.lastName}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center" }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ display: "flex", alignItems: "center" }}
+                    >
                       <Mail size={16} style={{ marginRight: "4px" }} />
                       {item.email}
                     </Typography>
@@ -114,7 +128,13 @@ const HireFreelancer = () => {
                   </Box>
                 )}
                 <Box mt={2} display="flex" alignItems="center">
-                  <Star size={16} style={{ color: theme.palette.warning.main, marginRight: "4px" }} />
+                  <Star
+                    size={16}
+                    style={{
+                      color: theme.palette.warning.main,
+                      marginRight: "4px",
+                    }}
+                  />
                   <Typography variant="body2" color="text.secondary">
                     {item.rating || "Not rated yet"}
                   </Typography>
@@ -125,7 +145,7 @@ const HireFreelancer = () => {
         ))}
       </Grid>
     </Container>
-  )
-}
+  );
+};
 
-export default HireFreelancer
+export default HireFreelancer;

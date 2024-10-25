@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo } from "react";
 import {
   AppBar,
   Toolbar,
@@ -13,55 +13,55 @@ import {
   MenuItem,
   useMediaQuery,
   useTheme,
-} from "@mui/material"
-import { styled } from "@mui/material/styles"
-import { Menu as MenuIcon, DollarSign, ClipboardList } from "lucide-react"
-import TrackPaymentStatus from "./TrackPaymentStatus"
-import ManageTasks from "./ManageTasks"
-import PostProjects from "./PostProjects"
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { Menu as MenuIcon, DollarSign, ClipboardList } from "lucide-react";
+import TrackPaymentStatus from "../client/TrackPaymentStatus";
+import ManageTasks from "./ManageTasks";
+import PostProjects from "../client/PostProjects";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
   boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)",
-}))
+}));
 
 const StyledButton = styled(Button)(({ theme }) => ({
   color: theme.palette.common.white,
   margin: theme.spacing(0, 1),
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  "&:hover": {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
-}))
+}));
 
 const menuItems = [
   { text: "Track Payment Status", icon: <DollarSign size={20} /> },
   { text: "Manage Tasks", icon: <ClipboardList size={20} /> },
-]
+];
 
 export default function Navbar() {
-  const [activeItem, setActiveItem] = useState("")
-  const [open, setOpen] = useState(false)
-  const [anchorElNav, setAnchorElNav] = useState(null)
+  const [activeItem, setActiveItem] = useState("");
+  const [open, setOpen] = useState(false);
+  const [anchorElNav, setAnchorElNav] = useState(null);
 
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"))
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleNavMenuToggle = (event) => {
-    setAnchorElNav(anchorElNav ? null : event.currentTarget)
-  }
+    setAnchorElNav(anchorElNav ? null : event.currentTarget);
+  };
 
   const handleItemClick = (item) => {
-    setActiveItem(item)
-    setAnchorElNav(null)
-  }
+    setActiveItem(item);
+    setAnchorElNav(null);
+  };
 
   const renderActiveComponent = useMemo(() => {
     const componentsMap = {
       "Track Payment Status": <TrackPaymentStatus />,
       "Manage Tasks": <ManageTasks />,
-    }
-    return componentsMap[activeItem] || null
-  }, [activeItem])
+    };
+    return componentsMap[activeItem] || null;
+  }, [activeItem]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -101,9 +101,9 @@ export default function Navbar() {
                       key={item.text}
                       onClick={() => {
                         if (item.text === "Post Projects") {
-                          setOpen(true)
+                          setOpen(true);
                         } else {
-                          handleItemClick(item.text)
+                          handleItemClick(item.text);
                         }
                       }}
                     >
@@ -119,15 +119,18 @@ export default function Navbar() {
                     key={item.text}
                     onClick={() => {
                       if (item.text === "Post Projects") {
-                        setOpen(true)
+                        setOpen(true);
                       } else {
-                        handleItemClick(item.text)
+                        handleItemClick(item.text);
                       }
                     }}
                     startIcon={item.icon}
                     variant={activeItem === item.text ? "contained" : "text"}
                     sx={{
-                      backgroundColor: activeItem === item.text ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+                      backgroundColor:
+                        activeItem === item.text
+                          ? "rgba(255, 255, 255, 0.2)"
+                          : "transparent",
                     }}
                   >
                     {item.text}
@@ -143,5 +146,5 @@ export default function Navbar() {
       </Container>
       <PostProjects setOpen={setOpen} open={open} />
     </Box>
-  )
+  );
 }

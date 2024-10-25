@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Avatar, Box, Button, Menu, MenuItem, Chip, Stack } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person2';
 import {  collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
-import { db } from './firebase'; // Make sure your Firebase config is exported from this file
+import { db } from '../firebase'; // Make sure your Firebase config is exported from this file
 
 const availableSkills = ['JavaScript', 'React', 'Node.js', 'Python', 'Firebase', 'CSS', 'HTML'];
 

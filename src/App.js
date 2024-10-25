@@ -1,24 +1,20 @@
 import React, { useEffect, useState } from "react";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Login from "./components/login";
-import SignUp from "./components/register";
+import Login from "./pages/login";
+import SignUp from "./pages/register";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "./components/firebase";
-import FreelancerJobs from "./components/Freelancer";
-import HierFreelancer from "./components/HireFreelancer";
-import AlertDialogSlide from "./components/PostProjects";
-import Client from "./components/Client";
-import LandingPage from "./components/LandingPage";
-import Admin from "./components/Admin";
+import FreelancerJobs from "./pages/Freelancer";
+import HierFreelancer from "./components/client/HireFreelancer";
+import AlertDialogSlide from "./components/client/PostProjects";
+import Client from "./pages/Client";
+import LandingPage from "./pages/LandingPage";
+import Admin from "./pages/Admin";
 
 function App() {
   const [user, setUser] = useState(null);

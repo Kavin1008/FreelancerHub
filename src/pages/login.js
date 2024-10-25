@@ -1,10 +1,9 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, db } from "./firebase";
+import { auth, db } from "../components/firebase";
 import { toast } from "react-toastify";
 import { doc, getDoc } from "firebase/firestore";
-
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,43 +13,49 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-      try {
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        const user = userCredential.user;
-        console.log(user);
-        
-        console.log("Inside----------------------------------");
-        if (user) {
-          const collection =
-            utype === "Client" ? "Client" : utype === "Freelancer" ? "Freelancer" : "Admin";
-          const userDoc = await getDoc(doc(db, collection, user.uid));
-          console.log("----------------------------------------Inside");
-          if (userDoc.exists()) {
-            console.log("--------inside--------");
-            
-            const {id, usertype } = userDoc.data();
-            toast.success("User logged in Successfully", {
-              position: "top-center",
-            });
-            console.log(id);
-            
-            localStorage.setItem("userUID", id);
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      console.log(user);
 
-            // Navigate based on user type
-            navigate(
-              usertype === "Client"
-                ? "/client-dashboard"
-                : usertype === "Freelancer" ? "/freelancer-dashboard" : "/admin-dashboard"
-            );
-          }
+      console.log("Inside----------------------------------");
+      if (user) {
+        const collection =
+          utype === "Client"
+            ? "Client"
+            : utype === "Freelancer"
+            ? "Freelancer"
+            : "Admin";
+        const userDoc = await getDoc(doc(db, collection, user.uid));
+        console.log("----------------------------------------Inside");
+        if (userDoc.exists()) {
+          console.log("--------inside--------");
+
+          const { id, usertype } = userDoc.data();
+          toast.success("User logged in Successfully", {
+            position: "top-center",
+          });
+          console.log(id);
+
+          localStorage.setItem("userUID", id);
+
+          // Navigate based on user type
+          navigate(
+            usertype === "Client"
+              ? "/client-dashboard"
+              : usertype === "Freelancer"
+              ? "/freelancer-dashboard"
+              : "/admin-dashboard"
+          );
         }
-      } catch (error) {
-        toast.error(error.message, { position: "bottom-center" });
       }
+    } catch (error) {
+      toast.error(error.message, { position: "bottom-center" });
+    }
   };
 
   return (
@@ -115,6 +120,5 @@ const Login = () => {
       </form>
     </div>
   );
-
-}
+};
 export default Login;

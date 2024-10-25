@@ -7,7 +7,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import { TextField } from "@mui/material";
 import { collection, addDoc, query, getDocs, where } from "firebase/firestore"; // Import getDoc for fetching client data
-import { db } from "./firebase";
+import { db } from "../firebase";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -32,42 +32,41 @@ export default function AlertDialogSlide({ setOpen, open }) {
 
   // Fetch client data on component mount
 
-React.useEffect(() => {
-  const fetchClientData = async () => {
-    try {
-      const userId = localStorage.getItem('userUID'); // Get userId from localStorage
-      console.log(userId);
-      
-      if (userId) {
-        // Use query to find the document where 'id' matches userId
-        const q = query(collection(db, 'Client'), where('id', '==', userId));
-        const querySnapshot = await getDocs(q); // Fetch all documents that match the query
+  React.useEffect(() => {
+    const fetchClientData = async () => {
+      try {
+        const userId = localStorage.getItem("userUID"); // Get userId from localStorage
+        console.log(userId);
 
-        if (!querySnapshot.empty) {
-          querySnapshot.forEach((doc) => {
-            // Assuming there's only one matching document, store the client data
-            setClientData(doc.data());
-            console.log("Client data: ", doc.data());
-          });
-        } else {
-          console.log("No such client found");
+        if (userId) {
+          // Use query to find the document where 'id' matches userId
+          const q = query(collection(db, "Client"), where("id", "==", userId));
+          const querySnapshot = await getDocs(q); // Fetch all documents that match the query
+
+          if (!querySnapshot.empty) {
+            querySnapshot.forEach((doc) => {
+              // Assuming there's only one matching document, store the client data
+              setClientData(doc.data());
+              console.log("Client data: ", doc.data());
+            });
+          } else {
+            console.log("No such client found");
+          }
         }
+      } catch (error) {
+        console.error("Error fetching client data: ", error);
       }
-    } catch (error) {
-      console.error("Error fetching client data: ", error);
-    }
-  };
+    };
 
-  fetchClientData();
-}, []);
-
+    fetchClientData();
+  }, []);
 
   const handlePost = async () => {
     try {
       // Get userId from localStorage
       const userId = localStorage.getItem("userUID");
       console.log(clientData);
-      
+
       if (userId && clientData) {
         // Add a new document with the client details and project information
         await addDoc(collection(db, "projects"), {
@@ -75,7 +74,7 @@ React.useEffect(() => {
           clientName: clientData.firstName, // Assuming clientData has a 'name' field
           title,
           domain,
-          status:"Posted",
+          status: "Posted",
           description,
           postedDate: new Date().toISOString(), // Optionally include the posted date
         });

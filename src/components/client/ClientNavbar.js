@@ -16,9 +16,9 @@ import {
 } from "@mui/material"
 import { styled } from "@mui/material/styles"
 import { Menu as MenuIcon, UserPlus, FileText, MessageSquare, BarChart2, CreditCard } from "lucide-react"
-import HireFreelancer from "./HireFreelancer"
-import PostProjects from "./PostProjects"
-import Proposals from "./Proposals"
+import HireFreelancer from "../client/HireFreelancer"
+import PostProjects from "../client/PostProjects"
+import Proposals from "../client/Proposals"
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,

@@ -1,6 +1,6 @@
 // AdminFreelancer.js
 import React, { useEffect, useState, useMemo } from "react";
-import { db } from "./firebase";
+import { db } from "../firebase";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import {
   Button,
@@ -84,9 +84,7 @@ const AdminFreelancer = () => {
       >
         <ListItemText
           primary={`${freelancer.firstName} ${freelancer.lastName}`}
-          secondary={`Skills: ${freelancer.skills} | Email: ${
-            freelancer.email
-          }`}
+          secondary={`Skills: ${freelancer.skills} | Email: ${freelancer.email}`}
         />
         <Box>
           <Button

@@ -1,6 +1,6 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
-import { auth, db } from "./firebase";
+import { auth, db } from "../components/firebase";
 import { setDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +36,12 @@ function Register() {
       const user = userCredential.user;
 
       // Choose the collection based on user type
-      const collection = utype === "Client" ? "Client" : utype === "Freelancer" ? "Freelancer" : "Admin";
+      const collection =
+        utype === "Client"
+          ? "Client"
+          : utype === "Freelancer"
+          ? "Freelancer"
+          : "Admin";
 
       await setDoc(doc(db, collection, user.uid), {
         id: id(),
@@ -54,7 +59,11 @@ function Register() {
 
       // Redirect based on user type
       navigate(
-        utype === "Freelancer" ? "/freelancer-dashboard" : utype === "client" ? "/client-dashboard" : "/admin-dashboard"
+        utype === "Freelancer"
+          ? "/freelancer-dashboard"
+          : utype === "client"
+          ? "/client-dashboard"
+          : "/admin-dashboard"
       );
     } catch (error) {
       console.log(error.message);
@@ -148,8 +157,6 @@ function Register() {
       </form>
     </div>
   );
-  
-  
 }
 
 export default Register;

@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, addDoc, query, where, doc, updateDoc } from "firebase/firestore";
-import { db } from "../firebaseConfig";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  where,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "../config/firebaseConfig";
 import {
   Container,
   Typography,
@@ -16,13 +24,12 @@ import { styled } from "@mui/material/styles";
 import {
   Description,
   Domain,
-  Person,
   CalendarToday,
 } from "@mui/icons-material";
-import ProjectPopup from "./ProjectPopup";
+import ProjectPopup from "../components/freelancer/ProjectPopup";
 import PersonIcon from "@mui/icons-material/Person2";
-import FreelancerPopup from "./FreelancerPopup";
-import Navbar from "./FreelancerNavbar";
+import FreelancerPopup from "../components/freelancer/FreelancerPopup";
+import Navbar from "../components/freelancer/FreelancerNavbar";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: "100%",
@@ -59,26 +66,28 @@ export default function FreelancerJobs() {
   const [freelancerPopupOpen, setFreelancerPopupOpen] = useState(false);
   const [freelancerDetails, setFreelancerDetails] = useState({});
 
-  
-useEffect(() => {
-  const fetchProjects = async () => {
-    try {
-      const q = query(collection(db, "projects"), where("status", "==", "Posted"));
-      
-      const querySnapshot = await getDocs(q);
-      const projectsList = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      
-      setProjects(projectsList);
-    } catch (error) {
-      console.error("Error fetching projects: ", error);
-    }
-  };
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const q = query(
+          collection(db, "projects"),
+          where("status", "==", "Posted")
+        );
 
-  fetchProjects();
-}, []);
+        const querySnapshot = await getDocs(q);
+        const projectsList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setProjects(projectsList);
+      } catch (error) {
+        console.error("Error fetching projects: ", error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   useEffect(() => {
     const fetchFreelancerDetails = async () => {
@@ -87,16 +96,18 @@ useEffect(() => {
         try {
           const freelancerQuery = query(
             collection(db, "Freelancer"),
-            where("id", "==", userUID), // Fetch only projects with status "Posted"
+            where("id", "==", userUID) // Fetch only projects with status "Posted"
           );
-  
+
           const querySnapshot = await getDocs(freelancerQuery);
-  
+
           if (!querySnapshot.empty) {
             const freelancerData = querySnapshot.docs[0].data();
             setFreelancerDetails(freelancerData);
           } else {
-            console.log("No freelancer details found with status 'Posted' for this UID");
+            console.log(
+              "No freelancer details found with status 'Posted' for this UID"
+            );
           }
         } catch (error) {
           console.error("Error fetching freelancer details:", error);
@@ -105,10 +116,9 @@ useEffect(() => {
         console.error("No userUID found in localStorage");
       }
     };
-  
+
     fetchFreelancerDetails();
   }, []);
-  
 
   const onSave = (updatedSkills) => {
     // Update the state with the new skills
@@ -138,7 +148,6 @@ useEffect(() => {
   const handleSave = async () => {
     if (selectedProject) {
       console.log(freelancerDetails);
-      const userUID = localStorage.getItem("userUID");
       try {
         await addDoc(collection(db, "proposals"), {
           clientId: selectedProject.clientId, // Client ID from the selected project
@@ -147,31 +156,28 @@ useEffect(() => {
           freelancerName: freelancerDetails.firstName, // Freelancer's name
           description: desc, // Description entered in the popup
           submissionDate: new Date(), // Current date and time
-          status: "Requested"
+          status: "Requested",
         });
-        
+
         console.log("Proposal submitted successfully");
-  
+
         // Update the status field of the selected project to "Requested"
-        
-        const projectRef = doc(db, "projects", selectedProject.id
-      ); // Get the reference to the project document
-      console.log(projectRef);
-      
+
+        const projectRef = doc(db, "projects", selectedProject.id); // Get the reference to the project document
+        console.log(projectRef);
+
         await updateDoc(projectRef, {
-          status: "Requested"
+          status: "Requested",
         });
-  
+
         console.log("Project status updated to 'Requested'");
-        
       } catch (error) {
         console.error("Error submitting proposal or updating project:", error);
       }
     }
-  
+
     handleClosePopup(); // Close the popup after saving
   };
-  
 
   const handleOpenFreelancerPopup = () => {
     setFreelancerPopupOpen(true);

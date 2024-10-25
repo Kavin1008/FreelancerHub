@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { db } from "./firebase"; // Ensure this path is correct
+import { db } from "../firebase"; // Ensure this path is correct
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import {
   Button,
