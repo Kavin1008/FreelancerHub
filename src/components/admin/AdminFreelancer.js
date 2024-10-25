@@ -1,4 +1,3 @@
-// AdminFreelancer.js
 import React, { useEffect, useState, useMemo } from "react";
 import { db } from "../firebase";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
@@ -15,7 +14,20 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
+  Divider,
+  List as MuiList,
+  ListItem as MuiListItem,
+  ListItemIcon,
+  ListItemText as MuiListItemText,
 } from "@mui/material";
+import {
+  Close as CloseIcon,
+  Person as PersonIcon,
+  Email as EmailIcon,
+  Work as WorkIcon,
+  Phone as PhoneIcon,
+} from "@mui/icons-material";
 
 const AdminFreelancer = () => {
   const [freelancers, setFreelancers] = useState([]);
@@ -127,19 +139,56 @@ const AdminFreelancer = () => {
         message={snackbarMessage}
       />
 
-      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle>Freelancer Details</DialogTitle>
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ m: 0, p: 2 }}>
+          Freelancer Details
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseDialog}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <Divider />
         <DialogContent>
           {selectedFreelancer && (
             <Box>
-              <Typography variant="h6">{`${selectedFreelancer.firstName} ${selectedFreelancer.lastName}`}</Typography>
-              <Typography>Email: {selectedFreelancer.email}</Typography>
-              <Typography>Skills: {selectedFreelancer.skills}</Typography>
+              <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                <PersonIcon sx={{ mr: 1 }} />
+                {`${selectedFreelancer.firstName} ${selectedFreelancer.lastName}`}
+              </Typography>
+              <MuiList>
+                <MuiListItem>
+                  <ListItemIcon>
+                    <EmailIcon />
+                  </ListItemIcon>
+                  <MuiListItemText primary="Email" secondary={selectedFreelancer.email} />
+                </MuiListItem>
+                <MuiListItem>
+                  <ListItemIcon>
+                    <WorkIcon />
+                  </ListItemIcon>
+                  <MuiListItemText primary="Skills" secondary={selectedFreelancer.skills} />
+                </MuiListItem>
+                <MuiListItem>
+                  <ListItemIcon>
+                    <PhoneIcon />
+                  </ListItemIcon>
+                  <MuiListItemText primary="Phone" secondary={selectedFreelancer.phone || 'N/A'} />
+                </MuiListItem>
+              </MuiList>
             </Box>
           )}
         </DialogContent>
+        <Divider />
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
+          <Button onClick={handleCloseDialog} color="primary" variant="contained" startIcon={<CloseIcon />}>
             Close
           </Button>
         </DialogActions>

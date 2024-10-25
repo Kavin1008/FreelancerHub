@@ -16,8 +16,11 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
+  IconButton,
 } from "@mui/material";
 import { styled } from "@mui/system";
+import CloseIcon from "@mui/icons-material/Close";
 
 // Styled components for the dialog
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -31,6 +34,7 @@ const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
   padding: theme.spacing(2),
+  position: "relative",
 }));
 
 const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
@@ -71,7 +75,6 @@ const AdminProjects = () => {
         ...doc.data(),
       }));
 
-      console.log("Fetched projects:", projectList);
       setProjects(projectList);
     } catch (err) {
       console.error("Error fetching projects:", err);
@@ -165,7 +168,22 @@ const AdminProjects = () => {
       />
 
       <StyledDialog open={dialogOpen} onClose={handleCloseDialog}>
-        <StyledDialogTitle>Project Details</StyledDialogTitle>
+        <StyledDialogTitle>
+          Project Details
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseDialog}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </StyledDialogTitle>
+        <Divider />
         <StyledDialogContent>
           {selectedProject && (
             <Box>
@@ -182,6 +200,7 @@ const AdminProjects = () => {
             </Box>
           )}
         </StyledDialogContent>
+        <Divider />
         <StyledDialogActions>
           <Button
             onClick={handleCloseDialog}
