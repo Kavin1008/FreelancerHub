@@ -100,7 +100,7 @@ const AdminClient = () => {
       >
         <ListItemText
           primary={`${client.firstName} ${client.lastName}`}
-          secondary={`User Type: ${client.usertype}`}
+          secondary={`${client.email}`}
         />
         <Box>
           <Button
@@ -163,6 +163,7 @@ const AdminClient = () => {
         <DialogContent>
           {selectedClient && (
             <Box>
+<<<<<<< Updated upstream
               <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                 <PersonIcon sx={{ mr: 1 }} />
                 {`${selectedClient.firstName} ${selectedClient.lastName}`}
@@ -187,6 +188,12 @@ const AdminClient = () => {
                   <MuiListItemText primary="Phone" secondary={selectedClient.phone || 'N/A'} />
                 </MuiListItem>
               </MuiList>
+=======
+              <Typography variant="h6">{`First name : ${selectedClient.firstName}`}</Typography>
+              <Typography variant="h6">{`Last name : ${selectedClient.lastName}`}</Typography>
+              <Typography variant="h6">{`E-mail : ${selectedClient.email}`}</Typography>
+              {/* Add more fields as necessary */}
+>>>>>>> Stashed changes
             </Box>
           )}
         </DialogContent>
