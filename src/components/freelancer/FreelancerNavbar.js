@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useMemo } from "react";
 import {
   AppBar,
@@ -18,7 +16,7 @@ import { styled } from "@mui/material/styles";
 import { Menu as MenuIcon, DollarSign, ClipboardList } from "lucide-react";
 import TrackPaymentStatus from "./TrackPaymentStatus";
 import ManageTasks from "./ManageTasks";
-import PostProjects from "../client/PostProjects";
+import ViewProjects from "./ViewProjects";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
@@ -34,20 +32,23 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 const menuItems = [
-  { text: "Track Payment Status", icon: <DollarSign size={20} /> },
+  { text: "View Projects", icon: <DollarSign size={20} /> },
+  { text: "Submit Proposals", icon: <DollarSign size={20} /> },
   { text: "Manage Tasks", icon: <ClipboardList size={20} /> },
+  { text: "Payment Status", icon: <ClipboardList size={20} /> },
 ];
 
+const defaultActiveItem = menuItems[0].text;
+
 export default function Navbar() {
-  const [activeItem, setActiveItem] = useState("");
-  const [open, setOpen] = useState(false);
+  const [activeItem, setActiveItem] = useState(defaultActiveItem);
   const [anchorElNav, setAnchorElNav] = useState(null);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleNavMenuToggle = (event) => {
-    setAnchorElNav(anchorElNav ? null : event.currentTarget);
+    setAnchorElNav((prev) => (prev ? null : event.currentTarget));
   };
 
   const handleItemClick = (item) => {
@@ -57,11 +58,32 @@ export default function Navbar() {
 
   const renderActiveComponent = useMemo(() => {
     const componentsMap = {
-      "Track Payment Status": <TrackPaymentStatus />,
+      "View Projects": <ViewProjects />,
+      "Submit Proposals": <></>,
       "Manage Tasks": <ManageTasks />,
+      "Payment Status": <TrackPaymentStatus />,
     };
     return componentsMap[activeItem] || null;
   }, [activeItem]);
+
+  const MenuItems = ({ isMobile }) => (
+    <>
+      {menuItems.map(({ text, icon }) => (
+        <StyledButton
+          key={text}
+          onClick={() => handleItemClick(text)}
+          startIcon={icon}
+          variant={activeItem === text ? "contained" : "text"}
+          sx={{
+            backgroundColor:
+              activeItem === text ? "rgba(255, 255, 255, 0.2)" : "transparent",
+          }}
+        >
+          {text}
+        </StyledButton>
+      ))}
+    </>
+  );
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -69,73 +91,30 @@ export default function Navbar() {
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             {isMobile ? (
-              <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+              <>
                 <IconButton
                   size="large"
                   aria-label="open menu"
-                  aria-controls="menu-appbar"
-                  aria-haspopup="true"
                   onClick={handleNavMenuToggle}
                   color="inherit"
                 >
                   <MenuIcon />
                 </IconButton>
                 <Menu
-                  id="menu-appbar"
                   anchorEl={anchorElNav}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "left",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
                   open={Boolean(anchorElNav)}
                   onClose={handleNavMenuToggle}
-                  sx={{ display: { xs: "block", md: "none" } }}
                 >
-                  {menuItems.map((item) => (
-                    <MenuItem
-                      key={item.text}
-                      onClick={() => {
-                        if (item.text === "Post Projects") {
-                          setOpen(true);
-                        } else {
-                          handleItemClick(item.text);
-                        }
-                      }}
-                    >
-                      <Typography textAlign="center">{item.text}</Typography>
+                  {menuItems.map(({ text }) => (
+                    <MenuItem key={text} onClick={() => handleItemClick(text)}>
+                      <Typography textAlign="center">{text}</Typography>
                     </MenuItem>
                   ))}
                 </Menu>
-              </Box>
+              </>
             ) : (
               <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-                {menuItems.map((item) => (
-                  <StyledButton
-                    key={item.text}
-                    onClick={() => {
-                      if (item.text === "Post Projects") {
-                        setOpen(true);
-                      } else {
-                        handleItemClick(item.text);
-                      }
-                    }}
-                    startIcon={item.icon}
-                    variant={activeItem === item.text ? "contained" : "text"}
-                    sx={{
-                      backgroundColor:
-                        activeItem === item.text
-                          ? "rgba(255, 255, 255, 0.2)"
-                          : "transparent",
-                    }}
-                  >
-                    {item.text}
-                  </StyledButton>
-                ))}
+                <MenuItems />
               </Box>
             )}
           </Toolbar>
@@ -144,7 +123,6 @@ export default function Navbar() {
       <Container maxWidth="xl" sx={{ mt: 4 }}>
         {renderActiveComponent}
       </Container>
-      <PostProjects setOpen={setOpen} open={open} />
     </Box>
   );
 }

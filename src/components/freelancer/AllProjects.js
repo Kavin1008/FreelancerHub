@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from './firebase'; // Adjust path based on your Firebase config file
+import { db } from '../firebase'; // Adjust path based on your Firebase config file
 import { Box, Card, CardContent, Typography, CircularProgress, Grid } from '@mui/material';
 
 export default function ProjectList() {
