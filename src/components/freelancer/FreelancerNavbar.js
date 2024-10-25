@@ -33,7 +33,6 @@ const StyledButton = styled(Button)(({ theme }) => ({
 
 const menuItems = [
   { text: "View Projects", icon: <DollarSign size={20} /> },
-  { text: "Submit Proposals", icon: <DollarSign size={20} /> },
   { text: "Manage Tasks", icon: <ClipboardList size={20} /> },
   { text: "Payment Status", icon: <ClipboardList size={20} /> },
 ];
@@ -59,7 +58,6 @@ export default function Navbar() {
   const renderActiveComponent = useMemo(() => {
     const componentsMap = {
       "View Projects": <ViewProjects />,
-      "Submit Proposals": <></>,
       "Manage Tasks": <ManageTasks />,
       "Payment Status": <TrackPaymentStatus />,
     };

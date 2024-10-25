@@ -5,8 +5,8 @@ import {
   addDoc,
   query,
   where,
-  doc,
   updateDoc,
+  doc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import {
@@ -24,6 +24,7 @@ import { Description, Domain, CalendarToday } from "@mui/icons-material";
 import ProjectPopup from "./ProjectPopup";
 import PersonIcon from "@mui/icons-material/Person2";
 import FreelancerPopup from "./FreelancerPopup";
+import { v4 as id } from "uuid";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: "100%",
@@ -65,7 +66,7 @@ export default function ViewProjects() {
       try {
         const q = query(
           collection(db, "projects"),
-          where("status", "==", "Posted")
+          where("status", "in", ["Posted", "Requested"]) 
         );
 
         const querySnapshot = await getDocs(q);
@@ -143,34 +144,41 @@ export default function ViewProjects() {
     if (selectedProject) {
       console.log(freelancerDetails);
       try {
-        await addDoc(collection(db, "projects"), {
-          clientId: selectedProject.clientId, // Client ID from the selected project
+        await addDoc(collection(db, "proposals"), {
+          id: id(),
+          clientId: selectedProject.clientId,
           title: selectedProject.title,
-          freelancerId: freelancerDetails.id, // Freelancer's ID
-          freelancerName: freelancerDetails.firstName, // Freelancer's name
-          description: desc, // Description entered in the popup
-          submissionDate: new Date(), // Current date and time
+          freelancerId: freelancerDetails.id,
+          freelancerName: freelancerDetails.firstName,
+          description: desc,
+          proposedDate: new Date(),
           status: "Requested",
+          paymentStatus: "Not paid",
         });
 
-        console.log("Proposal submitted successfully");
+        const projectQuery = query(
+          collection(db, "projects"),
+          where("id", "==", selectedProject.id)
+        );
+        const querySnapshot = await getDocs(projectQuery);
 
-        // Update the status field of the selected project to "Requested"
+        if (!querySnapshot.empty) {
+          const projectDoc = querySnapshot.docs[0].ref;
+          await updateDoc(projectDoc, {
+            status: "Requested",
+          });
+          console.log("Project status updated successfully.");
+        } else {
+          console.error("No project found with the given ID field.");
+        }
 
-        const projectRef = doc(db, "projects", selectedProject.id); // Get the reference to the project document
-        console.log(projectRef);
-
-        await updateDoc(projectRef, {
-          status: "Requested",
-        });
-
-        console.log("Project status updated to 'Requested'");
+        console.log("Proposal submitted successfully.");
       } catch (error) {
         console.error("Error submitting proposal or updating project:", error);
       }
     }
 
-    handleClosePopup(); // Close the popup after saving
+    handleClosePopup();
   };
 
   const handleOpenFreelancerPopup = () => {
@@ -241,7 +249,7 @@ export default function ViewProjects() {
                 <InfoItem>
                   <CalendarToday fontSize="small" />
                   <Typography variant="body2" color="text.secondary">
-                    Posted on: {project.postedDate}
+                    Posted on: {project.postedDate?.substring(0,10)}
                   </Typography>
                 </InfoItem>
               </StyledCardContent>

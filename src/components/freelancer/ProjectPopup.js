@@ -20,6 +20,7 @@ import {
   Domain,
   Person,
   CalendarToday,
+  TitleRounded,
 } from "@mui/icons-material";
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -62,7 +63,7 @@ export default function ProjectPopup({
   return (
     <StyledDialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <StyledDialogTitle>
-        {project.title}
+        Submit Proposal
         <IconButton
           aria-label="close"
           onClick={onClose}
@@ -74,6 +75,10 @@ export default function ProjectPopup({
         </IconButton>
       </StyledDialogTitle>
       <DialogContent dividers>
+        <InfoItem>
+          <TitleRounded />
+          <Typography variant="body1">{project.title}</Typography>
+        </InfoItem>
         <InfoItem>
           <Description />
           <Typography variant="body1">{project.description}</Typography>
@@ -114,7 +119,7 @@ export default function ProjectPopup({
             fullWidth
             size="large"
           >
-            Save Description
+            Submit
           </Button>
         </Box>
       </DialogContent>
