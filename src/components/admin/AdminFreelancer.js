@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState, useMemo } from "react";
 import { db } from "../firebase";
 import { collection, getDocs, deleteDoc, doc, query, where } from "firebase/firestore";
@@ -16,10 +18,11 @@ import {
   DialogTitle,
   IconButton,
   Divider,
-  List as MuiList,
-  ListItem as MuiListItem,
+  Paper,
+  Container,
+  Alert,
   ListItemIcon,
-  ListItemText as MuiListItemText,
+  Chip,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -27,6 +30,8 @@ import {
   Email as EmailIcon,
   Work as WorkIcon,
   Phone as PhoneIcon,
+  Delete as DeleteIcon,
+  Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 
 const AdminFreelancer = () => {
@@ -57,21 +62,24 @@ const AdminFreelancer = () => {
   };
 
   const handleDelete = async (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this freelancer?");
+    if (!confirmed) return;
+
+    setLoading(true);
+
     try {
       const freelancerCol = collection(db, "Freelancer");
-      const q = query(freelancerCol, where("id", "==", id)); // Adjust this if needed
+      const q = query(freelancerCol, where("id", "==", id));
 
       const querySnapshot = await getDocs(q);
-
       if (!querySnapshot.empty) {
-        // Assuming there's only one document with the given id
         querySnapshot.forEach(async (docSnapshot) => {
-          const freelancerDoc = doc(db, "Freelancer", docSnapshot.id); // Get document reference
-          await deleteDoc(freelancerDoc); // Delete the document
+          const freelancerDoc = doc(db, "Freelancer", docSnapshot.id);
+          await deleteDoc(freelancerDoc);
           console.log(`Successfully deleted freelancer with ID: ${id}`);
           setSnackbarMessage("Freelancer deleted successfully");
           setSnackbarOpen(true);
-          fetchFreelancers(); // Refresh the list
+          fetchFreelancers();
         });
       } else {
         console.error(`No freelancer found with ID: ${id}`);
@@ -82,10 +90,10 @@ const AdminFreelancer = () => {
       console.error("Error deleting freelancer:", err);
       setSnackbarMessage("Failed to delete freelancer");
       setSnackbarOpen(true);
+    } finally {
+      setLoading(false);
     }
   };
-
-  
 
   const handleView = (freelancer) => {
     setSelectedFreelancer(freelancer);
@@ -109,61 +117,99 @@ const AdminFreelancer = () => {
     return freelancers.map((freelancer) => (
       <ListItem
         key={freelancer.id}
-        sx={{ borderBottom: "1px solid #ccc", padding: "16px" }}
+        sx={{
+          borderBottom: "1px solid #e0e0e0",
+          "&:hover": {
+            backgroundColor: "rgba(0, 0, 0, 0.04)",
+          },
+        }}
       >
+        <ListItemIcon>
+          <PersonIcon color="primary" />
+        </ListItemIcon>
         <ListItemText
-          primary={`${freelancer.firstName} ${freelancer.lastName}`}
-          secondary={`Skills: ${freelancer.skills} | Email: ${freelancer.email}`}
+          primary={
+            <Typography variant="subtitle1">{`${freelancer.firstName} ${freelancer.lastName}`}</Typography>
+          }
+          secondary={
+            <Box>
+              <Typography variant="body2" color="text.secondary">
+                {freelancer.email}
+              </Typography>
+              <Box mt={1}>
+                {freelancer.skills.split(',').map((skill, index) => (
+                  <Chip
+                    key={index}
+                    label={skill.trim()}
+                    size="small"
+                    sx={{ mr: 0.5, mb: 0.5 }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          }
         />
         <Box>
-          <Button
-            variant="contained"
+          <IconButton
             color="primary"
             onClick={() => handleView(freelancer)}
-            sx={{ marginRight: 1 }}
+            sx={{ mr: 1 }}
           >
-            View
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
+            <VisibilityIcon />
+          </IconButton>
+          <IconButton
+            color="error"
             onClick={() => handleDelete(freelancer.id)}
           >
-            Delete
-          </Button>
+            <DeleteIcon />
+          </IconButton>
         </Box>
       </ListItem>
     ));
   }, [freelancers]);
 
   return (
-    <Box padding={3}>
-      <Typography variant="h4" marginBottom={2}>
-        Freelancer List
-      </Typography>
-      {loading ? (
-        <CircularProgress />
-      ) : error ? (
-        <Typography color="error">{error}</Typography>
-      ) : (
-        <List>{freelancerList}</List>
-      )}
+    <Container maxWidth="md">
+      <Box sx={{ my: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Freelancer List
+        </Typography>
+        <Paper elevation={3}>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : error ? (
+            <Alert severity="error">{error}</Alert>
+          ) : (
+            <List>{freelancerList}</List>
+          )}
+        </Paper>
+      </Box>
 
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        message={snackbarMessage}
-      />
+      >
+        <Alert onClose={handleCloseSnackbar} severity="info" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
 
-      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+      <Dialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle sx={{ m: 0, p: 2 }}>
           Freelancer Details
           <IconButton
             aria-label="close"
             onClick={handleCloseDialog}
             sx={{
-              position: 'absolute',
+              position: "absolute",
               right: 8,
               top: 8,
               color: (theme) => theme.palette.grey[500],
@@ -176,41 +222,70 @@ const AdminFreelancer = () => {
         <DialogContent>
           {selectedFreelancer && (
             <Box>
-              <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                <PersonIcon sx={{ mr: 1 }} />
+              <Typography
+                variant="h5"
+                gutterBottom
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <PersonIcon sx={{ mr: 1 }} color="primary" />
                 {`${selectedFreelancer.firstName} ${selectedFreelancer.lastName}`}
               </Typography>
-              <MuiList>
-                <MuiListItem>
+              <List>
+                <ListItem>
                   <ListItemIcon>
-                    <EmailIcon />
+                    <EmailIcon color="primary" />
                   </ListItemIcon>
-                  <MuiListItemText primary="Email" secondary={selectedFreelancer.email} />
-                </MuiListItem>
-                <MuiListItem>
+                  <ListItemText
+                    primary="Email"
+                    secondary={selectedFreelancer.email}
+                  />
+                </ListItem>
+                <ListItem>
                   <ListItemIcon>
-                    <WorkIcon />
+                    <WorkIcon color="primary" />
                   </ListItemIcon>
-                  <MuiListItemText primary="Skills" secondary={selectedFreelancer.skills} />
-                </MuiListItem>
-                <MuiListItem>
+                  <ListItemText
+                    primary="Skills"
+                    secondary={
+                      <Box mt={1}>
+                        {selectedFreelancer.skills.split(',').map((skill, index) => (
+                          <Chip
+                            key={index}
+                            label={skill.trim()}
+                            size="small"
+                            sx={{ mr: 0.5, mb: 0.5 }}
+                          />
+                        ))}
+                      </Box>
+                    }
+                  />
+                </ListItem>
+                <ListItem>
                   <ListItemIcon>
-                    <PhoneIcon />
+                    <PhoneIcon color="primary" />
                   </ListItemIcon>
-                  <MuiListItemText primary="Phone" secondary={selectedFreelancer.phone || 'N/A'} />
-                </MuiListItem>
-              </MuiList>
+                  <ListItemText
+                    primary="Phone"
+                    secondary={selectedFreelancer.phone || "N/A"}
+                  />
+                </ListItem>
+              </List>
             </Box>
           )}
         </DialogContent>
         <Divider />
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary" variant="contained" startIcon={<CloseIcon />}>
+          <Button
+            onClick={handleCloseDialog}
+            color="primary"
+            variant="contained"
+            startIcon={<CloseIcon />}
+          >
             Close
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Container>
   );
 };
 
