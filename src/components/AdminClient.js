@@ -1,7 +1,8 @@
-// Client.js
-import React, { useEffect, useState, useMemo } from "react";
-import { db } from "./firebase";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+'use client'
+
+import React, { useEffect, useState, useMemo } from "react"
+import { db } from "./firebase"
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore"
 import {
   Button,
   List,
@@ -15,68 +16,81 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "@mui/material";
+  IconButton,
+  Divider,
+  List as MuiList,
+  ListItem as MuiListItem,
+  ListItemIcon,
+  ListItemText as MuiListItemText,
+} from "@mui/material"
+import {
+  Close as CloseIcon,
+  Person as PersonIcon,
+  Email as EmailIcon,
+  Badge as BadgeIcon,
+  Phone as PhoneIcon,
+} from "@mui/icons-material"
 
 const AdminClient = () => {
-  const [clients, setClients] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [selectedClient, setSelectedClient] = useState(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [clients, setClients] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState("")
+  const [selectedClient, setSelectedClient] = useState(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const fetchClients = async () => {
     try {
-      setLoading(true);
-      const clientsCollection = collection(db, "Client");
-      const clientSnapshot = await getDocs(clientsCollection);
+      setLoading(true)
+      const clientsCollection = collection(db, "Client")
+      const clientSnapshot = await getDocs(clientsCollection)
       const clientList = clientSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
-      setClients(clientList);
+      }))
+      setClients(clientList)
     } catch (err) {
-      console.error("Error fetching clients:", err);
-      setError("Failed to fetch clients");
+      console.error("Error fetching clients:", err)
+      setError("Failed to fetch clients")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDelete = async (id) => {
     try {
-      console.log(`Attempting to delete client with ID: ${id}`);
-      const clientDoc = doc(db, "Client", id);
-      await deleteDoc(clientDoc);
-      console.log(`Successfully deleted client with ID: ${id}`);
-      setSnackbarMessage("Client deleted successfully");
-      setSnackbarOpen(true);
-      fetchClients(); // Refresh the client list
+      console.log(`Attempting to delete client with ID: ${id}`)
+      const clientDoc = doc(db, "Client", id)
+      await deleteDoc(clientDoc)
+      console.log(`Successfully deleted client with ID: ${id}`)
+      setSnackbarMessage("Client deleted successfully")
+      setSnackbarOpen(true)
+      fetchClients() // Refresh the client list
     } catch (err) {
-      console.error("Error deleting client:", err);
-      setSnackbarMessage("Failed to delete client");
-      setSnackbarOpen(true);
+      console.error("Error deleting client:", err)
+      setSnackbarMessage("Failed to delete client")
+      setSnackbarOpen(true)
     }
-  };
+  }
 
   const handleView = (client) => {
-    setSelectedClient(client);
-    setDialogOpen(true);
-  };
+    setSelectedClient(client)
+    setDialogOpen(true)
+  }
 
   const handleCloseDialog = () => {
-    setDialogOpen(false);
-    setSelectedClient(null);
-  };
+    setDialogOpen(false)
+    setSelectedClient(null)
+  }
 
   useEffect(() => {
-    fetchClients();
-  }, []);
+    fetchClients()
+  }, [])
 
   const handleCloseSnackbar = () => {
-    setSnackbarOpen(false);
-  };
+    setSnackbarOpen(false)
+  }
 
   const clientList = useMemo(() => {
     return clients.map((client) => (
@@ -106,8 +120,8 @@ const AdminClient = () => {
           </Button>
         </Box>
       </ListItem>
-    ));
-  }, [clients]);
+    ))
+  }, [clients])
 
   return (
     <Box padding={3}>
@@ -129,25 +143,62 @@ const AdminClient = () => {
         message={snackbarMessage}
       />
 
-      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle>Client Details</DialogTitle>
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ m: 0, p: 2 }}>
+          Client Details
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseDialog}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <Divider />
         <DialogContent>
           {selectedClient && (
             <Box>
-              <Typography variant="h6">{`${selectedClient.firstName} ${selectedClient.lastName}`}</Typography>
-              <Typography>{selectedClient.email}</Typography>
-              {/* Add more fields as necessary */}
+              <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                <PersonIcon sx={{ mr: 1 }} />
+                {`${selectedClient.firstName} ${selectedClient.lastName}`}
+              </Typography>
+              <MuiList>
+                <MuiListItem>
+                  <ListItemIcon>
+                    <EmailIcon />
+                  </ListItemIcon>
+                  <MuiListItemText primary="Email" secondary={selectedClient.email} />
+                </MuiListItem>
+                <MuiListItem>
+                  <ListItemIcon>
+                    <BadgeIcon />
+                  </ListItemIcon>
+                  <MuiListItemText primary="User Type" secondary={selectedClient.usertype} />
+                </MuiListItem>
+                <MuiListItem>
+                  <ListItemIcon>
+                    <PhoneIcon />
+                  </ListItemIcon>
+                  <MuiListItemText primary="Phone" secondary={selectedClient.phone || 'N/A'} />
+                </MuiListItem>
+              </MuiList>
             </Box>
           )}
         </DialogContent>
+        <Divider />
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
+          <Button onClick={handleCloseDialog} color="primary" variant="contained" startIcon={<CloseIcon />}>
             Close
           </Button>
         </DialogActions>
       </Dialog>
     </Box>
-  );
-};
+  )
+}
 
-export default AdminClient;
+export default AdminClient
