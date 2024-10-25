@@ -1,80 +1,86 @@
-"use client"
-
-import React, { useState, useEffect } from 'react'
-import { collection, getDocs } from 'firebase/firestore'
-import { db } from '../firebase' // Ensure this points to your Firebase config
+import React, { useState, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 import {
   CircularProgress, Typography, Box, Card, CardContent, Grid, Container,
   TextField, MenuItem, Select, FormControl, InputLabel, AppBar, Toolbar,
-  IconButton, Tooltip
-} from '@mui/material'
+  Tooltip
+} from '@mui/material';
 import {
   Search as SearchIcon,
-  Sort as SortIcon,
   Assignment as AssignmentIcon,
+  CheckCircle as CheckCircleIcon,
   Person as PersonIcon,
   DateRange as DateRangeIcon,
-  CheckCircle as CheckCircleIcon,
-} from '@mui/icons-material'
+} from '@mui/icons-material';
+import ProgressPopup from './ProgressPopup';
 
 const ProgressList = () => {
-  const [progressDocs, setProgressDocs] = useState([])
-  const [filteredDocs, setFilteredDocs] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [sortBy, setSortBy] = useState('acceptedDate')
+  const [progressDocs, setProgressDocs] = useState([]);
+  const [filteredDocs, setFilteredDocs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('acceptedDate');
+  const [openPopup, setOpenPopup] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState(null);
 
   useEffect(() => {
     const fetchProgressDocs = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "progress"))
+        const querySnapshot = await getDocs(collection(db, "proposals"));
         const docsData = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
-        }))
-        setProgressDocs(docsData)
-        setFilteredDocs(docsData)
+        }));
+        setProgressDocs(docsData);
+        setFilteredDocs(docsData);
       } catch (error) {
-        console.error("Error fetching progress documents: ", error)
-        setError("Failed to fetch progress documents.")
+        console.error("Error fetching proposals documents: ", error);
+        setError("Failed to fetch proposals documents.");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProgressDocs()
-  }, [])
+    fetchProgressDocs();
+  }, []);
 
   useEffect(() => {
     const filtered = progressDocs.filter(doc =>
-      doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.freelancerName.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+      doc.title?.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+      doc.freelancerName?.toLowerCase().includes(searchTerm?.toLowerCase())
+    );
     const sorted = filtered.sort((a, b) => {
       if (sortBy === 'acceptedDate') {
-        return new Date(b.acceptedDate) - new Date(a.acceptedDate)
+        return new Date(b.acceptedDate) - new Date(a.acceptedDate);
       } else if (sortBy === 'title') {
-        return a.title.localeCompare(b.title)
+        return a.title.localeCompare(b.title);
       } else if (sortBy === 'freelancerName') {
-        return a.freelancerName.localeCompare(b.freelancerName)
+        return a.freelancerName.localeCompare(b.freelancerName);
       }
-      return 0
-    })
-    setFilteredDocs(sorted)
-  }, [progressDocs, searchTerm, sortBy])
+      return 0;
+    });
+    setFilteredDocs(sorted);
+  }, [progressDocs, searchTerm, sortBy]);
+
+  const handleCardClick = (doc) => {
+    console.log(doc);
+    setSelectedDoc(doc);
+    setOpenPopup(true);
+  };
 
   if (loading) return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
       <CircularProgress />
     </Box>
-  )
+  );
 
   if (error) return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
       <Typography color="error" variant="h6">{error}</Typography>
     </Box>
-  )
+  );
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -121,6 +127,7 @@ const ProgressList = () => {
             {filteredDocs.map((doc) => (
               <Grid item xs={12} md={6} key={doc.id}>
                 <Card 
+                  onClick={() => handleCardClick(doc)}
                   sx={{ 
                     height: '100%',
                     display: 'flex',
@@ -141,7 +148,7 @@ const ProgressList = () => {
                     </Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
                       <Tooltip title="Proposal ID">
-                        <span>ID: {doc.proposalId}</span>
+                        <span>ID: {doc.id}</span>
                       </Tooltip>
                     </Typography>
                     <Typography variant="body1" paragraph>
@@ -160,7 +167,7 @@ const ProgressList = () => {
                       <Tooltip title="Accepted Date">
                         <DateRangeIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
                       </Tooltip>
-                      {new Date(doc.acceptedDate).toLocaleDateString()}
+                      {doc.acceptedDate ? new Date(doc.acceptedDate).toLocaleDateString() : "Proposal not accepted yet"}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -172,15 +179,23 @@ const ProgressList = () => {
             display="flex" 
             justifyContent="center" 
             alignItems="center" 
-            minHeight="50vh"
-            flexDirection="column"
+            height="60vh"
           >
-            <Typography variant="h6" gutterBottom>No progress documents found.</Typography>
+            <Typography variant="body1" color="textSecondary">
+              No records found.
+            </Typography>
           </Box>
         )}
       </Container>
+      
+      {/* Progress Popup */}
+      {openPopup && <ProgressPopup 
+        open={openPopup} 
+        onClose={() => setOpenPopup(false)} 
+        doc={selectedDoc}
+      />}
     </Box>
-  )
-}
+  );
+};
 
-export default ProgressList
+export default ProgressList;

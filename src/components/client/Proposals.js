@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../firebase"; // Ensure your Firebase config is correctly set up
 import { getAuth } from "firebase/auth"; // To get the currently logged-in user
 import {
@@ -18,6 +18,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { FileText, User, Calendar, DollarSign } from "lucide-react";
+import { v4 as id } from "uuid";
 
 const Proposals = () => {
   const [proposals, setProposals] = useState([]);
@@ -61,45 +62,70 @@ const Proposals = () => {
     fetchProposals();
   }, []);
 
-  const handleAccept = async (proposal) => {
-    try {
-      const auth = getAuth();
-      const user = auth.currentUser;
 
-      if (!user) {
-        setError("User is not logged in.");
-        return;
+const handleAccept = async (proposal) => {
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      setError("User is not logged in.");
+      return;
+    }
+
+    // Query the 'proposals' collection to find the document with the matching id
+    const proposalsQuery = query(
+      collection(db, "proposals"),
+      where("id", "==", proposal.id)
+    );
+
+    const querySnapshot = await getDocs(proposalsQuery);
+
+    if (!querySnapshot.empty) {
+      // Assuming 'id' is unique, we take the first matching document
+      const proposalDoc = querySnapshot.docs[0];
+      const proposalRef = proposalDoc.ref;
+
+      // Update the existing proposal document
+      await updateDoc(proposalRef, {
+        status: "Accepted",
+        acceptedDate: new Date().toISOString(), // Add the accepted date
+      });
+      
+      const projectQuery = query(
+        collection(db, "projects"),
+        where("id", "==", proposalRef.id)
+      );
+      console.log(proposal.clientId);
+      
+      const querySnapshot1 = await getDocs(projectQuery);
+
+      if (!querySnapshot1.empty) {
+        const projectDoc = querySnapshot1.docs[0].ref;
+        await updateDoc(projectDoc, {
+          status: "Accepted",
+        });
+        alert("Proposal accepted successfully.");
+      } else {
+        console.error("No project found with the given ID field.");
       }
 
-      const clientId = localStorage.getItem("userUID");
-
-      // Prepare data for accepted proposal
-      const acceptedProposal = {
-        clientId: clientId,
-        proposalId: proposal.id,
-        freelancerId: proposal.freelancerId,
-        freelancerName: proposal.freelancerName,
-        title: proposal.title,
-        acceptedDate: new Date().toISOString(),
-        status: "Accepted",
-      };
-
-      // Save the accepted proposal to Firestore under the 'progress' collection
-      await addDoc(collection(db, "progress"), acceptedProposal);
-
-      alert("Proposal accepted successfully!");
-
-      // Optionally, you can update the local state to reflect the accepted status
+      // Optionally, update local state to reflect the accepted status
       setProposals((prevProposals) =>
         prevProposals.map((p) =>
-          p.id === proposal.id ? { ...p, status: "Accepted" } : p
+          p.id === proposal.id ? { ...p, status: "Accepted", acceptedDate: new Date().toISOString() } : p
         )
       );
-    } catch (error) {
-      console.error("Error accepting proposal: ", error);
-      setError("Failed to accept proposal.");
+    } else {
+      console.error("Proposal not found.");
+      setError("Proposal not found.");
     }
-  };
+  } catch (error) {
+    console.error("Error accepting proposal: ", error);
+    setError("Failed to accept proposal.");
+  }
+};
+
 
   if (loading)
     return (

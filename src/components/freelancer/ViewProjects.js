@@ -167,7 +167,7 @@ export default function ViewProjects() {
           await updateDoc(projectDoc, {
             status: "Requested",
           });
-          console.log("Project status updated successfully.");
+          alert("Project status updated successfully.");
         } else {
           console.error("No project found with the given ID field.");
         }
@@ -197,7 +197,7 @@ export default function ViewProjects() {
           gutterBottom
           sx={{ mb: 4, fontWeight: "bold" }}
         >
-          All Projects
+          Available Projects
         </Typography>
         <Avatar onClick={handleOpenFreelancerPopup} sx={{ cursor: "pointer" }}>
           <PersonIcon />

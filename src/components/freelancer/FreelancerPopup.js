@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Avatar, Box, Button, Menu, MenuItem, Chip, Stack } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  Avatar,
+  Box,
+  Button,
+  Menu,
+  MenuItem,
+  Chip,
+  Stack,
+} from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person2';
-import {  collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase'; // Make sure your Firebase config is exported from this file
 
 const availableSkills = ['JavaScript', 'React', 'Node.js', 'Python', 'Firebase', 'CSS', 'HTML'];
@@ -9,15 +22,24 @@ const availableSkills = ['JavaScript', 'React', 'Node.js', 'Python', 'Firebase',
 export default function FreelancerPopup({ open, onClose, freelancer, onSave }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedSkills, setSelectedSkills] = useState([]); // Initialize as an empty array if skills are missing
-    useEffect(() => {
-        if (freelancer && freelancer.skills) {
+
+  useEffect(() => {
+    if (freelancer) {
+      if (freelancer.skills) {
+        // Check if skills is a string and split if it is
+        if (typeof freelancer.skills === 'string') {
           setSelectedSkills(freelancer.skills.split(', ')); // Set selectedSkills from freelancer's skills
+        } else if (Array.isArray(freelancer.skills)) {
+          setSelectedSkills(freelancer.skills); // If it's already an array, set it directly
         } else {
           setSelectedSkills([]); // Reset to empty array if no skills
         }
-      }, [freelancer]);
-    
-    
+      } else {
+        setSelectedSkills([]); // Reset to empty array if no skills
+      }
+    }
+  }, [freelancer]);
+
   const handleOpenMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -33,26 +55,30 @@ export default function FreelancerPopup({ open, onClose, freelancer, onSave }) {
     handleCloseMenu();
   };
 
+  const handleRemoveSkill = (skillToRemove) => {
+    setSelectedSkills(selectedSkills.filter(skill => skill !== skillToRemove)); // Remove the skill from the state
+  };
+
   const handleSave = async () => {
     try {
       // Query the Freelancer collection to find the document with the matching id field
       const q = query(collection(db, 'Freelancer'), where('id', '==', freelancer.id));
       const querySnapshot = await getDocs(q);
-  
+
       if (querySnapshot.empty) {
-        console.error("No document found with the specified id field!");
+        console.error('No document found with the specified id field!');
         return; // Stop execution if no document is found
       }
-  
+
       // Assuming there's only one document matching the id
       const freelancerDoc = querySnapshot.docs[0]; // Get the first matching document
       const freelancerRef = freelancerDoc.ref; // Get the document reference
-  
+
       // Proceed to update the document
       await updateDoc(freelancerRef, {
-        skills: selectedSkills.join(', ') // Save as a comma-separated string
+        skills: selectedSkills.join(', '), // Save as a comma-separated string
       });
-  
+
       // Call the onSave prop function (if needed for parent component actions)
       onSave(selectedSkills);
       onClose(); // Close the dialog after saving
@@ -73,15 +99,26 @@ export default function FreelancerPopup({ open, onClose, freelancer, onSave }) {
       </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column" gap={2}>
-          <Typography variant="body1"><strong>Email:</strong> {freelancer.email}</Typography>
-          <Typography variant="body1"><strong>Experience:</strong> {freelancer.experience ? freelancer.experience + " years" : "0 years"}</Typography>
+          <Typography variant="body1">
+            <strong>Email:</strong> {freelancer.email}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Experience:</strong> {freelancer.experience ? freelancer.experience + ' years' : '0 years'}
+          </Typography>
 
           {selectedSkills.length > 0 ? (
             <Box>
-              <Typography variant="body1"><strong>Skills:</strong></Typography>
+              <Typography variant="body1">
+                <strong>Skills:</strong>
+              </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap">
                 {selectedSkills.map((skill, index) => (
-                  <Chip key={index} label={skill} color="primary" />
+                  <Chip
+                    key={index}
+                    label={skill}
+                    color="primary"
+                    onDelete={() => handleRemoveSkill(skill)} // Add remove functionality here
+                  />
                 ))}
               </Stack>
             </Box>
