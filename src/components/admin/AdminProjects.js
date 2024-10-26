@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { db } from "../firebase"; // Ensure this path is correct
+import { db } from "../firebase"; 
 import { collection, getDocs, deleteDoc, doc, query, where } from "firebase/firestore";
 import {
   Button,
@@ -39,7 +39,7 @@ import {
   Description as DescriptionIcon,
 } from "@mui/icons-material";
 
-// Create a theme
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -51,7 +51,6 @@ const theme = createTheme({
   },
 });
 
-// Styled components for the dialog
 const StyledDialog = styled(Dialog)(() => ({
   "& .MuiDialog-paper": {
     borderRadius: "12px",

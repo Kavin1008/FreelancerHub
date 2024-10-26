@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { collection, query, where, getDocs, updateDoc } from "firebase/firestore";
-import { db } from "../firebase"; // Ensure your Firebase config is correctly set up
-import { getAuth } from "firebase/auth"; // To get the currently logged-in user
+import { db } from "../firebase"; 
+import { getAuth } from "firebase/auth"; 
 import {
   CircularProgress,
   Typography,
@@ -33,9 +33,8 @@ const Proposals = () => {
         const user = auth.currentUser;
 
         if (user) {
-          const clientId = localStorage.getItem("userUID"); // Assuming you are storing the client ID in local storage
+          const clientId = localStorage.getItem("userUID"); 
 
-          // Query Firestore to get all proposals that have the logged-in client's clientId
           const q = query(
             collection(db, "proposals"),
             where("clientId", "==", clientId)
@@ -73,7 +72,6 @@ const handleAccept = async (proposal) => {
       return;
     }
 
-    // Query the 'proposals' collection to find the document with the matching id
     const proposalsQuery = query(
       collection(db, "proposals"),
       where("id", "==", proposal.id)
@@ -82,14 +80,12 @@ const handleAccept = async (proposal) => {
     const querySnapshot = await getDocs(proposalsQuery);
 
     if (!querySnapshot.empty) {
-      // Assuming 'id' is unique, we take the first matching document
       const proposalDoc = querySnapshot.docs[0];
       const proposalRef = proposalDoc.ref;
 
-      // Update the existing proposal document
       await updateDoc(proposalRef, {
         status: "Accepted",
-        acceptedDate: new Date().toISOString(), // Add the accepted date
+        acceptedDate: new Date().toISOString(),
       });
       
       const projectQuery = query(

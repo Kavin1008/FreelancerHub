@@ -56,9 +56,7 @@ export default function Navbar() {
 
   const handleItemClick = (item) => {
     if (item === "LogOut") {
-      // Handle logout and navigate to login
-      // Perform any logout actions if needed (e.g., clear authentication state)
-      navigate("/login"); // Redirect to login page
+      navigate("/login"); 
     } else {
       setActiveItem(item);
     }

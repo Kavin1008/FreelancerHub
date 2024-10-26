@@ -15,27 +15,27 @@ import {
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person2';
 import { collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase'; // Make sure your Firebase config is exported from this file
+import { db } from '../firebase'; 
 
 const availableSkills = ['JavaScript', 'React', 'Node.js', 'Python', 'Firebase', 'CSS', 'HTML'];
 
 export default function FreelancerPopup({ open, onClose, freelancer, onSave }) {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedSkills, setSelectedSkills] = useState([]); // Initialize as an empty array if skills are missing
+  const [selectedSkills, setSelectedSkills] = useState([]); 
 
   useEffect(() => {
     if (freelancer) {
       if (freelancer.skills) {
-        // Check if skills is a string and split if it is
+        
         if (typeof freelancer.skills === 'string') {
-          setSelectedSkills(freelancer.skills.split(', ')); // Set selectedSkills from freelancer's skills
+          setSelectedSkills(freelancer.skills.split(', ')); 
         } else if (Array.isArray(freelancer.skills)) {
-          setSelectedSkills(freelancer.skills); // If it's already an array, set it directly
+          setSelectedSkills(freelancer.skills); 
         } else {
-          setSelectedSkills([]); // Reset to empty array if no skills
+          setSelectedSkills([]); 
         }
       } else {
-        setSelectedSkills([]); // Reset to empty array if no skills
+        setSelectedSkills([]); 
       }
     }
   }, [freelancer]);
@@ -50,36 +50,34 @@ export default function FreelancerPopup({ open, onClose, freelancer, onSave }) {
 
   const handleAddSkill = (skill) => {
     if (!selectedSkills.includes(skill)) {
-      setSelectedSkills([...selectedSkills, skill]); // Add the new skill to the state
+      setSelectedSkills([...selectedSkills, skill]); 
     }
     handleCloseMenu();
   };
 
   const handleRemoveSkill = (skillToRemove) => {
-    setSelectedSkills(selectedSkills.filter(skill => skill !== skillToRemove)); // Remove the skill from the state
+    setSelectedSkills(selectedSkills.filter(skill => skill !== skillToRemove)); 
   };
 
   const handleSave = async () => {
     try {
-      // Query the Freelancer collection to find the document with the matching id field
       const q = query(collection(db, 'Freelancer'), where('id', '==', freelancer.id));
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
         console.error('No document found with the specified id field!');
-        return; // Stop execution if no document is found
+        return;
       }
 
-      // Assuming there's only one document matching the id
-      const freelancerDoc = querySnapshot.docs[0]; // Get the first matching document
-      const freelancerRef = freelancerDoc.ref; // Get the document reference
+      const freelancerDoc = querySnapshot.docs[0]; 
+      const freelancerRef = freelancerDoc.ref; 
 
-      // Proceed to update the document
+      
       await updateDoc(freelancerRef, {
-        skills: selectedSkills.join(', '), // Save as a comma-separated string
+        skills: selectedSkills.join(', '),
       });
 
-      // Call the onSave prop function (if needed for parent component actions)
+      
       onSave(selectedSkills);
       onClose(); // Close the dialog after saving
     } catch (error) {

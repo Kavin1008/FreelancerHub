@@ -28,7 +28,7 @@ const ManageTasks = () => {
       }
 
       try {
-        // Query for accepted projects with matching freelancer ID
+       
         const projectsQuery = query(
           collection(db, "proposals"),
           where("freelancerId", "==", freelancerId),

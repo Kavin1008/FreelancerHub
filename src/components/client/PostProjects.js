@@ -6,7 +6,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import { TextField } from "@mui/material";
-import { collection, addDoc, query, getDocs, where } from "firebase/firestore"; // Import getDoc for fetching client data
+import { collection, addDoc, query, getDocs, where } from "firebase/firestore"; 
 import { db } from "../firebase";
 import {v4 as id} from "uuid";
 
@@ -18,7 +18,7 @@ export default function AlertDialogSlide({ setOpen, open }) {
   const [title, setTitle] = React.useState("");
   const [domain, setDomain] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [clientData, setClientData] = React.useState(null); // Store client details here
+  const [clientData, setClientData] = React.useState(null); 
 
   const handleClose = () => {
     setOpen(false);
@@ -31,22 +31,18 @@ export default function AlertDialogSlide({ setOpen, open }) {
     setDescription("");
   };
 
-  // Fetch client data on component mount
 
   React.useEffect(() => {
     const fetchClientData = async () => {
       try {
-        const userId = localStorage.getItem("userUID"); // Get userId from localStorage
-        console.log(userId);
+        const userId = localStorage.getItem("userUID"); 
 
         if (userId) {
-          // Use query to find the document where 'id' matches userId
           const q = query(collection(db, "Client"), where("id", "==", userId));
-          const querySnapshot = await getDocs(q); // Fetch all documents that match the query
+          const querySnapshot = await getDocs(q); 
 
           if (!querySnapshot.empty) {
             querySnapshot.forEach((doc) => {
-              // Assuming there's only one matching document, store the client data
               setClientData(doc.data());
               console.log("Client data: ", doc.data());
             });
@@ -64,24 +60,22 @@ export default function AlertDialogSlide({ setOpen, open }) {
 
   const handlePost = async () => {
     try {
-      // Get userId from localStorage
       const userId = localStorage.getItem("userUID");
       console.log(clientData);
 
       if (userId && clientData) {
-        // Add a new document with the client details and project information
         await addDoc(collection(db, "projects"), {
           id: id(),
           clientId: userId,
-          clientName: clientData.firstName, // Assuming clientData has a 'name' field
+          clientName: clientData.firstName, 
           title,
           domain,
           status: "Posted",
           description,
-          postedDate: new Date().toISOString(), // Optionally include the posted date
+          postedDate: new Date().toISOString(), 
         });
         console.log("Document successfully written!");
-        handleClose(); // Close dialog after posting
+        handleClose(); 
       }
     } catch (error) {
       console.error("Error adding document: ", error);
