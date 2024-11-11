@@ -6,7 +6,6 @@ import {
   query,
   where,
   updateDoc,
-  doc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import {

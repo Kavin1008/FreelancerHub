@@ -18,7 +18,6 @@ import {
   useTheme,
 } from "@mui/material";
 import { FileText, User, Calendar, DollarSign } from "lucide-react";
-import { v4 as id } from "uuid";
 
 const Proposals = () => {
   const [proposals, setProposals] = useState([]);

@@ -33,7 +33,7 @@ import {
   Delete as DeleteIcon,
   Visibility as VisibilityIcon,
   Person as PersonIcon,
-  Email as EmailIcon,
+
   Work as WorkIcon,
   Language as LanguageIcon,
   Description as DescriptionIcon,
